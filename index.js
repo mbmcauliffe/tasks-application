@@ -201,13 +201,11 @@ app.post('/create', async (req, res) => {
 	const user = new Users();
 
 	// Set the initial user information values
-	user._id = crypto.randomBytes(16).toString('hex');
 	user.firstName = req.body.firstName;
 	user.lastName = req.body.lastName;
 	user.email = req.body.email.toLowerCase();
 	user.password = await bcrypt.hash(req.body.password, 8);
-	user.role = "Admin";
-	user.organisationIDs = [];
+	user.sharePartners = [];
 
 	// Save the new user
 	user.save();
