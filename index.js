@@ -233,4 +233,4 @@ app.delete('/logout', async (req, res) => {
 
 //////////////////////////////// Server Initialization ////////////////////////////////
 
-app.listen(selfPort, ()=> console.log('Task-Application running at ' + selfPort));
+app.listen(selfPort, ()=> console.log('Tasks-Application running at ' + selfPort));
