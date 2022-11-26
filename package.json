@@ -31,6 +31,8 @@
     "jsonwebtoken": "latest",
     "bcrypt": "latest",
     "express-rate-limit": "latest",
-    "mongoose": "latest"
+    "mongoose": "latest",
+    "mbmcauliffe-utilities": "https://github.com/mbmcauliffe-web-core/utilities.git",
+    "ejs": "latest"
   }
 }

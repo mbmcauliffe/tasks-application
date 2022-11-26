@@ -4,7 +4,7 @@ const app = express();
 // Add Middleware
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const logger = require("../mbmcauliffe-web-core/utilities/src/logger");
+const logger = require("./node_modules/mbmcauliffe-utilities/src/logger");
 const mongoSanitize = require('express-mongo-sanitize');
 
 // Auth Modules
@@ -45,12 +45,12 @@ const mongoose = require("mongoose");
 
 // Import Data Models
 const User = require("./models/User");
-const Task = require("./models/Task");
+//const Task = require("./models/Task");
 
 // Open and Log MongoDB Connection
 mongoose.connect("mongodb://localhost/task-application");
-const db = mogoose.connection;
-db.on("error", (error)=>{ console.log("\n!!!!! Mongoose Error !!!!!\n\n" + error + "\n\n"); });
+const db = mongoose.connection;
+db.on("error", (error)=>{ console.log("\n!!!!! Mongoose Error !!!!!\n\n" + error + "\n\n!!!!! Mongoose Error !!!!!\n"); });
 db.once("open", ()=>{ console.log("Connected to MongoDB"); });
 
 
@@ -217,7 +217,6 @@ app.post('/create', async (req, res) => {
 	user.lastName = req.body.lastName;
 	user.email = req.body.email.toLowerCase();
 	user.password = await bcrypt.hash(req.body.password, 8);
-	user.sharePartners = [];
 
 	// Save the new user
 	user.save();
