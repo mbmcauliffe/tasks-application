@@ -29,7 +29,6 @@
     "cookie-parser": "latest",
     "express-mongo-sanitize": "latest",
     "jsonwebtoken": "latest",
-    "crypto": "latest",
     "bcrypt": "latest",
     "express-rate-limit": "latest",
     "mongoose": "latest"
