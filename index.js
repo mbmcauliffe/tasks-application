@@ -99,11 +99,20 @@ async function authorizeToken( req, res, next ){
 
 		// Reject if the token is invalid
 		if(err){
+
+			// Set the Authorization Header to a useless value
+			res.set("Access-Control-Expose-Headers", "authorization");
+			res.set("authorization", "Bearer " + "Rejected Token");
+
+			// Invalidate the user's authorization cookie
+			res.clearCookie('authorization', { httpOnly:true, /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
+
 			return res.status("401.ejs").redirect("/login");
+
 		}
 
 		// Check the database for the user's email address
-		const existingUser = Users.findOne({ email: tokenData.email });
+		const existingUser = User.findOne({ email: tokenData.email });
 
 		// Reject if the user is not currently in the database
 		if ( existingUser == null ) {
@@ -111,7 +120,7 @@ async function authorizeToken( req, res, next ){
 		}
 
 		// Create a token to be sent back to the user browser
-		const userToken = jwt.sign({ email: email }, tokenSecret, {expiresIn: '604800s'});
+		const userToken = jwt.sign({ email: tokenData.email }, tokenSecret, {expiresIn: '604800s'});
 
 		// Send the user's token as both and authorization header and as a cookie
 		res.set("Access-Control-Expose-Headers", "authorization");
@@ -145,6 +154,11 @@ app.use(limiter);
 
 app.get('/login', async (req, res) => {
 
+	// Prevent logged-in users from using this route
+	if ( req.headers.authorization ) {
+		return res.redirect("/");
+	}
+
 	return res.render("login.ejs");
 
 });
@@ -167,7 +181,7 @@ app.post('/login', async (req, res) => {
 	}
 
 	// Check the database for the user's email address
-	const existingUser = await Users.findOne({"email": req.body.email.toLowerCase()});
+	const existingUser = await User.findOne({"email": req.body.email.toLowerCase()});
 
 	// Send an Error to the Front-End if the user is not found in the database
 	if(existingUser == null){
@@ -189,7 +203,7 @@ app.post('/login', async (req, res) => {
 	}
 
 	// Create a token to be sent back to the user browser
-	const userToken = jwt.sign({ email: email }, tokenSecret, {expiresIn: '604800s'});
+	const userToken = jwt.sign({ email: existingUser.email }, tokenSecret, {expiresIn: '604800s'});
 
 	// Send the user's token as both and authorization header and as a cookie
 	res.set("Access-Control-Expose-Headers", "authorization");
@@ -203,6 +217,11 @@ app.post('/login', async (req, res) => {
 
 app.get('/create', async (req, res) => {
 
+	// Prevent logged-in users from using this route
+	if ( req.headers.authorization ) {
+		return res.redirect("/");
+	}
+
 	return res.render("createUser.ejs");
 
 });
@@ -210,12 +229,12 @@ app.get('/create', async (req, res) => {
 app.post('/create', async (req, res) => {
 
 	// Prevent logged-in users from using this route
-	if (req.headers.authorize.split(" ")[1] != null) {
+	if ( req.headers.authorization ) {
 		return res.redirect("/");
 	}
 
 	// Check the database for the user's email address
-	const existingUser = await Users.findOne({"email": req.body.email.toLowerCase()});
+	const existingUser = await User.findOne({"email": req.body.email.toLowerCase()});
 
 	// Send an Error to the Front-End if the email address is already in the database
 	if(existingUser != null){
@@ -226,7 +245,7 @@ app.post('/create', async (req, res) => {
 	}
 
 	// Create a new user instance
-	const user = new Users();
+	const user = new User();
 
 	// Set the initial user information values
 	user.firstName = req.body.firstName;
