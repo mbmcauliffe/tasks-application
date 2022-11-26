@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Login | [NAME] Contractor</title>
+	<link rel="stylesheet" href="https://global.mbmcauliffe.net/global.css" crossorigin="anonymous">
+	<script type="text/javascript" src='https://global.mbmcauliffe.net/global.js'  crossorigin="anonymous" defer></script>
+	<link rel="icon" type="image/x-icon" href="/img/favicon.png">
+</head>
+
+<script type="text/javascript">
+	
+	async function submitPost(){
+
+		const payload = {
+			email: document.getElementById("emailInput").value,
+			password: document.getElementById("passwordInput").value,
+		}
+
+		const response = await fetch('/login/', {
+	      method: 'POST',
+	      headers: {
+	        'Content-Type': 'application/json'
+	      },
+	      body: JSON.stringify(payload),
+	    });
+
+	    if(response.status === 200){
+
+	    	window.location.replace("/");
+	    	return
+	    	
+	    }
+
+	    const textResponse = await response.text();
+	    
+	    if(textResponse[0] === '{'){
+
+	      const error = await JSON.parse(textResponse);
+	      console.log(error);
+	      raiseError(error);
+
+	    }
+
+	}
+
+</script>
+
+<body>
+
+	<div id="promptBox" style='display: block'>
+
+		<div class='promptHeading'>Sign in</div>
+
+		<div class="promptScrollBox">
+
+			<div>
+				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
+					<div>Email:</div>
+					<input type="email" id='emailInput'>
+				</div>
+
+				<div class='inputBlock' onkeydown="return enterHandling(event.key, submitPost);">
+					<div>Password:</div>
+					<input type="password" id='passwordInput'>
+				</div>
+			</div>
+
+			<div style='display:flex;padding-top:1em'>
+
+				<div class='button' onclick="submitPost();">Submit</div>
+				<a class='button' href="/create">Create Account</a>
+				
+			</div>
+			
+		</div>
+
+	</div>
+
+	<div id='errorBlock'>
+		<div></div>
+		<div class='errorText'>
+			<div id="errorTitle" class='errorTitle'></div>
+			<div id="errorMessage" class='errorMessage'></div>
+		</div>
+		<div class='deleteSymbol' onclick='dismissError();' style='height:1em; width:1em'></div>
+	</div>
+
+</body>
+
+</html>

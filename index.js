@@ -76,14 +76,14 @@ async function authorizeToken( req, res, next ){
 
 	// Reject if the token does not exist
 	if ( req.headers.authorization == null ) {
-		return res.stratus("401.ejs").redirect("/login");
+		return res.status("401.ejs").redirect("/login");
 	}
 
 	jwt.verify(req.headers.authorization, tokenSecret, async (err, tokenData) => {
 
 		// Reject if the token is invalid
 		if(err){
-			return res.stratus("401.ejs").redirect("/login");
+			return res.status("401.ejs").redirect("/login");
 		}
 
 		// Check the database for the user's email address
@@ -91,7 +91,7 @@ async function authorizeToken( req, res, next ){
 
 		// Reject if the user is not currently in the database
 		if ( existingUser == null ) {
-			return res.stratus("403.ejs").redirect("/login");
+			return res.status("403.ejs").redirect("/login");
 		}
 
 		// Create a token to be sent back to the user browser
@@ -112,7 +112,7 @@ async function authorizeToken( req, res, next ){
 
 // Static Resource Configuration
 app.set('view-engine', 'ejs');
-app.set('views', '../mbmcauliffe-presentation/views/www');
+app.set('views', './views');
 
 // Request Processing
 app.use(bodyParser.json());
@@ -126,6 +126,12 @@ app.use(mongoSanitize());
 app.use(limiter);
 
 //////////////////////////////// Express Routes ////////////////////////////////
+
+app.get('/login', async (req, res) => {
+
+	return res.render("login.ejs");
+
+});
 
 app.post('/login', async (req, res) => {
 
@@ -179,6 +185,12 @@ app.post('/login', async (req, res) => {
 
 });
 
+app.get('/create', async (req, res) => {
+
+	return res.render("createUser.ejs");
+
+});
+
 app.post('/create', async (req, res) => {
 
 	// Prevent logged-in users from using this route
@@ -192,8 +204,8 @@ app.post('/create', async (req, res) => {
 	// Send an Error to the Front-End if the email address is already in the database
 	if(existingUser != null){
 		return res.status(400).send(JSON.stringify({
-			title: "Invalid User Creation",
-			message: "See your application administrator to correct this error."
+			title: "Email In Use",
+			message: "There is already an account using this email address."
 		}));
 	}
 
@@ -215,7 +227,25 @@ app.post('/create', async (req, res) => {
 
 });
 
+app.get('/', async (req, res, next) => {
+
+	// Prevent logged-in users from using this route
+	if ( req.headers.authorization ) {
+		next();
+		return
+	}
+
+	return res.render("homepage.ejs");
+
+});
+
 app.use(authorizeToken);
+
+app.get('/', async (req, res, next) => {
+
+	return res.render("taskTracker.ejs");
+
+});
 
 app.delete('/logout', async (req, res) => {
 
