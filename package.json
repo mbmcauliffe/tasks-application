@@ -1,0 +1,37 @@
+{
+  "name": "tasks-application",
+  "version": "0",
+  "description": "Browser-Based Task-Tracking Application for Individuals or Teams",
+  "main": "index.js",
+  "scripts": {
+    "main": "nodejs index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mbmcauliffe/tasks-application.git"
+  },
+  "keywords": [
+    "Tasks",
+    "Task Manager",
+    "Management"
+  ],
+  "author": "Michael B McAuliffe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mbmcauliffe/tasks-application/issues"
+  },
+  "homepage": "https://github.com/mbmcauliffe/tasks-application#readme",
+  "dependencies": {
+    "nodemon": "latest",
+    "express": "latest",
+    "body-parser": "latest",
+    "cookie-parser": "latest",
+    "express-mongo-sanitize": "latest",
+    "jsonwebtoken": "latest",
+    "crypto": "latest",
+    "bcrypt": "latest",
+    "express-rate-limit": "latest",
+    "mongoose": "latest"
+  }
+}
