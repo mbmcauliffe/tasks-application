@@ -63,7 +63,7 @@
 					<div>People:</div>
 
 					<div class="flexRow">
-						<select id="peopleSelect">
+						<select id="personSelect">
 
 							<option value="" selected>- Select -</option>
 
@@ -72,17 +72,10 @@
 							<% } %>
 
 						</select>
-						<div class="button" style="margin:0; margin-left: 0.5em" onclick="addPeople()">Add</div>
+						<div class="button" style="margin:0; margin-left: 0.5em" onclick="addPerson()">Add</div>
 					</div>
 
 					<div><%= user.firstName + " " + user.lastName %></div>
-
-					<!--
-					<div class="flexRow" style="justify-content: flex-start;">
-						<div><%= user.firstName + " " + user.lastName %></div>
-						<div class='deleteSymbol' onclick="removePeople();"></div>
-					</div>
-				-->
 
 				</div>
 			</div>
