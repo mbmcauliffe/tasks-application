@@ -68,7 +68,7 @@
 						<th>Last Name</th>
 						<th>Email Address</th>
 						<th>Status</th>
-						<th class="deleteSpacer"></th>
+						<th>Action</th>
 					</tr>
 				</thead>
 
@@ -81,7 +81,7 @@
 							<td><%= people[i].lastName %></td>
 							<td><%= people[i].email %></td>
 							<td>Status</td> <!-- Sort Array by Status -> First Name -> Last Name -->
-							<td class="deleteSymbol"></td> <!-- replace with addSymbol if status === pending -->
+							<td><div class="button red">Remove</div></td> <!-- replace with addSymbol if status === pending -->
 						</tr>
 
 					<% } %>
