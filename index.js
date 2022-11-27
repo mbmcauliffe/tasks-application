@@ -30,7 +30,7 @@ const bcrypt = require("bcrypt");
 
 // Server Configuration
 const selfPort = 3000;
-const tokenSecret = crypto.randomBytes(128).toString("HEX");
+const tokenSecret = "cheese" //crypto.randomBytes(128).toString("HEX");
 
 //////////////////////////////// Rate Limiter ////////////////////////////////
 
@@ -281,8 +281,6 @@ app.post('/create', async (req, res) => {
 
 });
 
-/*
-
 app.get('/', async (req, res, next) => {
 
 	// Prevent logged-in users from using this route
@@ -296,8 +294,6 @@ app.get('/', async (req, res, next) => {
 });
 
 app.use(authorizeToken);
-
-*/
 
 app.get('/people', async (req, res, next) => {
 
