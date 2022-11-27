@@ -33,15 +33,13 @@
 	    	
 	    }
 
-	    const textResponse = await response.text();
-	    
-	    if(textResponse[0] === '{'){
+	    if ( response.status === 400 ) {
+	    	const textResponse = await response.text();
 
-	      const error = await JSON.parse(textResponse);
-	      console.log(error);
-	      raiseError(error);
-
-	    }
+	    	const error = await JSON.parse(textResponse);
+	    	console.log(error);
+	    	raiseError(error);
+	    }	
 
 	}
 

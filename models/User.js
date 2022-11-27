@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
 
+	_id: {
+		type: String,
+		required: true
+	},
 	firstName: {
 		type: String,
 		required: true
@@ -19,7 +23,7 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	sharePartners: {
+	people: {
 		type: Array,
 		required: true,
 		default: []

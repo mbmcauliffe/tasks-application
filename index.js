@@ -64,7 +64,7 @@ const User = require("./models/User");
 const Task = require("./models/Task");
 
 // Open and Log MongoDB Connection
-mongoose.connect("mongodb://localhost/task-application");
+mongoose.connect("mongodb://localhost/taskApplication");
 const db = mongoose.connection;
 db.on("error", (error)=>{ console.log("\n!!!!! Mongoose Error !!!!!\n\n" + error + "\n\n!!!!! Mongoose Error !!!!!\n"); });
 db.once("open", ()=>{ console.log("Connected to MongoDB"); });
@@ -94,7 +94,7 @@ async function authorizeToken( req, res, next ){
 
 	// Reject if the token does not exist
 	if ( req.headers.authorization == null ) {
-		return res.status("401.ejs").redirect("/login");
+		return res.status(401).redirect("/login");
 	}
 
 	jwt.verify(req.headers.authorization, tokenSecret, async (err, tokenData) => {
@@ -109,7 +109,7 @@ async function authorizeToken( req, res, next ){
 			// Invalidate the user's authorization cookie
 			res.clearCookie('authorization', { httpOnly:true, /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
 
-			return res.status("401.ejs").redirect("/login");
+			return res.status(401).redirect("/login");
 
 		}
 
@@ -118,13 +118,13 @@ async function authorizeToken( req, res, next ){
 
 		// Reject if the user is not currently in the database
 		if ( existingUser == null ) {
-			return res.status("403.ejs").redirect("/login");
+			return res.status(403).redirect("/login");
 		}
 
 		// Attach the user's information to be used later in the application
 		req.headers.user = {
 			email: existingUser.email,
-			sharePartners: existingUser.sharedPartners
+			people: existingUser.sharedPartners
 		};
 
 		// Create a token to be sent back to the user browser
@@ -146,7 +146,7 @@ async function authorizeToken( req, res, next ){
 // Reference Configuration
 app.set('view-engine', 'ejs');
 app.set('views', './views');
-app.use(express.static('/public'));
+app.use(express.static('./public'));
 
 // Request Processing
 app.use(bodyParser.json());
@@ -257,6 +257,7 @@ app.post('/create', async (req, res) => {
 	const user = new User();
 
 	// Set the initial user information values
+	user._id = crypto.randomBytes(16).toString("HEX");
 	user.firstName = req.body.firstName;
 	user.lastName = req.body.lastName;
 	user.email = req.body.email.toLowerCase();
@@ -295,11 +296,12 @@ app.get('/', async (req, res, next) => {
 
 	return res.render("taskTracker.ejs", {
 		user: {
+			id: user._id,
 			firstName: user.firstName,
-			lastName: user.lastName
+			lastName: user.lastName,
+			people: user.people
 		},
-		tasks: tasks,
-		sharePartners: user.sharePartners //req.headers.user.sharePartners
+		tasks: tasks
 	});
 
 });
@@ -316,6 +318,10 @@ app.delete('/logout', async (req, res) => {
 	// Trigger the Front-End to redirect to its destination
 	res.status(200).send();
 
+});
+
+app.use((req, res)=>{
+	res.status(404).render("404.ejs");
 });
 
 //////////////////////////////// Server Initialization ////////////////////////////////

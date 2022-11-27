@@ -15,10 +15,11 @@
 	<header>
 		<div></div>
 		<div class="flexRow">
-			<div class="button type2">People</div>
+			<a class="button type2" href="/people" >People</a>
 			<div class="button" onclick="raisePrompt()">New Task</div>
 			<div class="button type2" onclick="logout()">Log Out</div>
 		</div>
+	<input type="hidden" value="<%= user.id %>" id="userId">
 	</header>
 
 	<main></main>
@@ -56,16 +57,26 @@
 					<div>People:</div>
 
 					<div class="flexRow">
-						<input type="text" id='peopleInput' style="width:100%">
+						<select id="peopleSelect" style="width:100%; background: white; height: 1.3em">
+
+							<option selected>- Select -</option>
+
+							<% for ( i=0; i<user.people.length; i++ ) { %>
+								<option id="<%= "person" + i %>"><%= user.people[i].firstName + " " + user.people[i].lastName %></option>
+							<% } %>
+
+						</select>
 						<div class="button" style="margin:0; margin-left: 0.5em" onclick="addPeople()">Add</div>
 					</div>
 
 					<div><%= user.firstName + " " + user.lastName %></div>
 
+					<!--
 					<div class="flexRow" style="justify-content: flex-start;">
-						<div class='deleteSymbol' onclick="removePeople();"></div>
 						<div><%= user.firstName + " " + user.lastName %></div>
+						<div class='deleteSymbol' onclick="removePeople();"></div>
 					</div>
+				-->
 
 				</div>
 			</div>
