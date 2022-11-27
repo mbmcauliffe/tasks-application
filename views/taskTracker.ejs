@@ -8,7 +8,14 @@
 	<script type="text/javascript" src='https://global.mbmcauliffe.net/global.js'  crossorigin="anonymous" defer></script>
 	<script type="text/javascript" src="./tasks.js" defer></script>
 	<link rel="icon" type="image/x-icon" href="/img/favicon.png">
+	<input type="hidden" value="<%= user.id %>" id="userId">
 </head>
+
+<style type="text/css">
+	.inputBlock{
+		width: 100%;
+	}
+</style>
 
 <body>
 
@@ -19,7 +26,6 @@
 			<div class="button" onclick="raisePrompt()">New Task</div>
 			<div class="button type2" onclick="logout()">Log Out</div>
 		</div>
-	<input type="hidden" value="<%= user.id %>" id="userId">
 	</header>
 
 	<main></main>
@@ -61,8 +67,8 @@
 
 							<option selected>- Select -</option>
 
-							<% for ( i=0; i<user.people.length; i++ ) { %>
-								<option id="<%= "person" + i %>"><%= user.people[i].firstName + " " + user.people[i].lastName %></option>
+							<% for ( i=0; i<people.length; i++ ) { %>
+								<option id="<%= "person" + i %>" value="<%= people[i].id %>"><%= people[i].firstName + " " + people[i].lastName + " ( " + people[i].email + " )"%></option>
 							<% } %>
 
 						</select>

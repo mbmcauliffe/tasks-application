@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>People | Task Manager</title>
+	<link rel="stylesheet" href="https://global.mbmcauliffe.net/global.css" crossorigin="anonymous">
+	<script type="text/javascript" src='https://global.mbmcauliffe.net/global.js'  crossorigin="anonymous" defer></script>
+	<link rel="icon" type="image/x-icon" href="/img/favicon.png">
+</head>
+
+<script type="text/javascript" defer>
+	
+	async function submitPost(){
+
+		const email = await document.getElementById("emailInput").value;
+
+		const response = await fetch('/people', {
+	      method: 'POST',
+	      headers: {
+	        'Content-Type': 'application/json'
+	      },
+	      body: JSON.stringify({ email: email }),
+	    });
+
+	    if(response.status === 200){
+
+	    	window.location.replace("/people");
+	    	return
+	    	
+	    }
+
+	    if ( response.status === 400 ) {
+	    	const textResponse = await response.text();
+
+	    	const error = await JSON.parse(textResponse);
+	    	console.log(error);
+	    	raiseError(error);
+	    }	
+
+	}
+
+</script>
+
+<body>
+
+	<header>
+		<div></div>
+		<div class="flexRow">
+			<a class="button type2" href="/" >Tasks</a>
+			<div class="button type2" onclick="logout()">Log Out</div>
+		</div>
+	</header>
+
+	<main>
+		
+		<div class="flexRow" style="height: 3em; width: 100%; border-bottom: 0.2em solid var(--color1); justify-content: center;">
+			<input type="text" id='emailInput' style="width:30%; text-align: center; border: 0.1em solid var(--color1); border-right: none" placeholder="Invite By Email Address">
+			<div class="button" style="height:1.1em; line-height: 1.1em;" onclick="submitPost()">Invite</div>
+		</div>
+
+	</main>
+
+	<footer>Copyright &copy; 2022, Michael B McAuliffe</footer>
+
+</body>
+
+</html>

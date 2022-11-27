@@ -63,6 +63,16 @@ const mongoose = require("mongoose");
 const User = require("./models/User");
 const Task = require("./models/Task");
 
+async function printUsers(){
+	const allUsers = await User.find();
+
+	for ( i=0; i<allUsers.length; i++ ) {
+		console.log(allUsers[i]);
+	}
+
+}
+printUsers();
+
 // Open and Log MongoDB Connection
 mongoose.connect("mongodb://localhost/taskApplication");
 const db = mongoose.connection;
@@ -289,18 +299,77 @@ app.use(authorizeToken);
 
 */
 
+app.get('/people', async (req, res, next) => {
+
+	const user = await User.findOne({ email: "test@test.test" });
+
+	return res.render("people.ejs", {
+		user: {
+			people: user.people
+		}
+	});
+
+});
+
+app.post('/people', async (req, res, next) => {
+
+	const user = await User.findOne({ email: "test@test.test" });
+	const inviteEmail = req.body.email;
+	const invitedUser = await User.findOne({ email: inviteEmail });
+
+	if ( invitedUser == null ) {
+		return res.status(200).send()
+	}
+
+	for ( i=0; i<invitedUser.people.length; i++ ) {
+		if ( invitedUser.people[i]._id == user._id ) {
+			return res.status(200).send()
+		}
+	}
+
+	for ( i=0; i<user.people.length; i++ ) {
+		if ( user.people[i]._id == invitedUser._id ) {
+			return res.status(200).send()
+		}
+	}
+
+	await user.people.push(invitedUser._id);
+	await invitedUser.people.push(user._id);
+
+	await user.save();
+	await invitedUser.save();
+
+	return res.status(200).send()
+
+});
+
 app.get('/', async (req, res, next) => {
 
 	const tasks = await Task.find({ people: { $in: "test@test.test" } });
 	const user = await User.findOne({ email: "test@test.test" });
+
+	var people = [];
+
+	for ( i=0; i<user.people.length; i++ ) {
+
+		const person = await User.findOne({ _id: user.people[i] });
+
+		people.push({
+			id: person._id,
+			email: person.email,
+			firstName: person.firstName,
+			lastName: person.lastName
+		});
+
+	}
 
 	return res.render("taskTracker.ejs", {
 		user: {
 			id: user._id,
 			firstName: user.firstName,
 			lastName: user.lastName,
-			people: user.people
 		},
+		people: people,
 		tasks: tasks
 	});
 
