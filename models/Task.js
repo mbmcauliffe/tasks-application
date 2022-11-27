@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const taskSchema = new mongoose.Schema({
 
+	_id: {
+		type: String,
+		required: true
+	},
 	title: {
 		type: String,
 		required: true
@@ -15,11 +19,11 @@ const taskSchema = new mongoose.Schema({
 		required: true
 	},
 	startDate: {
-		type: Number,
+		type: Date,
 		required: true
 	},
 	endDate: {
-		type: Number,
+		type: Date,
 		required: true
 	}
 

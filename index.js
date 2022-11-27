@@ -114,7 +114,7 @@ async function authorizeToken( req, res, next ){
 		}
 
 		// Check the database for the user's email address
-		const existingUser = User.findOne({ email: tokenData.email });
+		const existingUser = await User.findOne({ email: tokenData.email });
 
 		// Reject if the user is not currently in the database
 		if ( existingUser == null ) {
@@ -123,8 +123,8 @@ async function authorizeToken( req, res, next ){
 
 		// Attach the user's information to be used later in the application
 		req.headers.user = {
-			email: existingUser.email,
-			people: existingUser.sharedPartners
+			email: await existingUser.email,
+			people: await existingUser.people
 		};
 
 		// Create a token to be sent back to the user browser
@@ -311,7 +311,7 @@ app.get('/people', async (req, res, next) => {
 
 app.post('/people', async (req, res, next) => {
 
-	const user = await User.findOne({ email: "test@test.test" });
+	const user = await User.findOne({ email: req.headers.user.email});
 	const inviteEmail = req.body.email;
 	const invitedUser = await User.findOne({ email: inviteEmail });
 
@@ -343,8 +343,8 @@ app.post('/people', async (req, res, next) => {
 
 app.get('/', async (req, res, next) => {
 
-	const tasks = await Task.find({ people: { $in: "test@test.test" } });
-	const user = await User.findOne({ email: "test@test.test" });
+	const user = await User.findOne({ email: req.headers.user.email });
+	const tasks = await Task.find({ people: { $in: user._id } });
 
 	var people = [];
 
@@ -370,6 +370,36 @@ app.get('/', async (req, res, next) => {
 		people: people,
 		tasks: tasks
 	});
+
+});
+
+app.post('/', async (req, res, next) => {
+
+	var task;
+
+	if ( req.body.id == null ) {
+		task = new Task();
+	} else {
+		task = Task.findOne({ _id: req.body.id });
+	}
+
+	if ( task == null ) {
+		return res.status(400).send(JSON.stringify({
+			title: "Something went wrong",
+			message: "Please Try Again."
+		}));
+	}
+
+	task._id = crypto.randomBytes(16).toString("HEX");
+	task.title = req.body.title;
+	task.description = req.body.description;
+	task.startDate = req.body.startDate;
+	task.endDate = req.body.endDate;
+	task.people = req.body.people;
+
+	task.save();
+
+	return res.status(200).send()
 
 });
 

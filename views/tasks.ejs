@@ -28,7 +28,45 @@
 		</div>
 	</header>
 
-	<main></main>
+	<main>
+		
+		<div class="tableWrapper">
+			<table>
+
+				<thead>
+					<% if ( tasks.length == 0 ) { %>
+						<tr>
+							<th>No Tasks Currently Exist</th>
+						</tr>
+					<% } else { %>
+						<tr>
+							<th>Title</th>
+							<th>Description</th>
+							<th>Status</th>
+							<th>Time Remaining</th>
+						</tr>
+					<% } %>
+				</thead>
+
+				<tbody>
+					
+					<% for ( i=0; i<tasks.length; i++ ) { %>
+
+						<tr>
+							<td><%= tasks[i].title %></td>
+							<td><%= tasks[i].description %></td>
+							<td>Status</td> <!-- Sort Array by Status -> end date -> title -->
+							<td>Time Remaining</td>
+						</tr>
+
+					<% } %>
+
+				</tbody>
+				
+			</table>
+		</div>
+
+	</main>
 
 	<footer>Copyright &copy; 2022, Michael B McAuliffe</footer>
 

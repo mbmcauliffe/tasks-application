@@ -15,7 +15,7 @@ async function submitPost() {
 	task.startDate = await document.getElementById("startDateInput").value;
 	task.endDate = await document.getElementById("endDateInput").value;
 
-	const response = await fetch('/task', {
+	const response = await fetch('/', {
 		method: 'POST',
 		headers: {
 		'Content-Type': 'application/json'
