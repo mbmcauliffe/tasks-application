@@ -289,10 +289,22 @@ app.get('/people', async (req, res, next) => {
 
 	const user = await User.findOne({ email: "test@test.test" });
 
+	var people = [];
+
+	for ( i=0; i<user.people.length; i++ ) {
+
+		const person = await User.findOne({ _id: user.people[i] });
+		people.push({
+			id: person._id,
+			email: person.email,
+			firstName: person.firstName,
+			lastName: person.lastName
+		});
+
+	}
+
 	return res.render("people.ejs", {
-		user: {
-			people: user.people
-		}
+		people: people
 	});
 
 });

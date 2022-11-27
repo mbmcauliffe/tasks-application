@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Task Manager</title>
+	<link rel="stylesheet" href="https://global.mbmcauliffe.net/global.css" crossorigin="anonymous">
+	<script type="text/javascript" src='https://global.mbmcauliffe.net/global.js'  crossorigin="anonymous" defer></script>
+	<script type="text/javascript" src="./tasks.js" defer></script>
+	<link rel="icon" type="image/x-icon" href="/img/favicon.png">
+	<input type="hidden" value="<%= user.id %>" id="userId">
+</head>
+
+<style type="text/css">
+	.inputBlock{
+		width: 100%;
+	}
+</style>
+
+<body>
+
+	<header>
+		<div></div>
+		<div class="flexRow">
+			<a class="button type2" href="/people" >People</a>
+			<div class="button" onclick="raisePrompt()">New Task</div>
+			<div class="button type2" onclick="logout()">Log Out</div>
+		</div>
+	</header>
+
+	<main></main>
+
+	<footer>Copyright &copy; 2022, Michael B McAuliffe</footer>
+
+	<div id="promptBox">
+
+		<div class='promptHeading' id="promptHeading">New Task</div>
+
+		<div class="promptScrollBox">
+
+			<div>
+				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
+					<div>Title:</div>
+					<input type="text" id='titleInput'>
+				</div>
+
+				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
+					<div>Description:</div>
+					<input type="text" id='descriptionInput'>
+				</div>
+
+				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
+					<div>Start Date:</div>
+					<input type="date" id='startDateInput'>
+				</div>
+
+				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
+					<div>End Date:</div>
+					<input type="date" id='endDateInput'>
+				</div>
+
+				<div class='inputBlock' id="peopleBlock" onkeydown="return addPeople(event.key);">
+					<div>People:</div>
+
+					<div class="flexRow">
+						<select id="peopleSelect">
+
+							<option value="" selected>- Select -</option>
+
+							<% for ( i=0; i<people.length; i++ ) { %>
+								<option value="<%= people[i].id %>"><%= people[i].firstName + " " + people[i].lastName + " ( " + people[i].email + " )"%></option>
+							<% } %>
+
+						</select>
+						<div class="button" style="margin:0; margin-left: 0.5em" onclick="addPeople()">Add</div>
+					</div>
+
+					<div><%= user.firstName + " " + user.lastName %></div>
+
+					<!--
+					<div class="flexRow" style="justify-content: flex-start;">
+						<div><%= user.firstName + " " + user.lastName %></div>
+						<div class='deleteSymbol' onclick="removePeople();"></div>
+					</div>
+				-->
+
+				</div>
+			</div>
+
+			<div style='display:flex;padding-top:1em'>
+
+				<div class='button' onclick="submitPost();">Save</div>
+				<div class='button type2' onClick="closePrompt(true)">Cancel</div>
+				
+			</div>
+			
+		</div>
+
+	</div>
+
+	<div id='errorBlock'>
+		<div></div>
+		<div class='errorText'>
+			<div id="errorTitle" class='errorTitle'></div>
+			<div id="errorMessage" class='errorMessage'></div>
+		</div>
+		<div class='deleteSymbol' onclick='dismissError();' style='height:1em; width:1em'></div>
+	</div>
+
+</body>
+
+<script type="text/javascript">
+	const date = new Date();
+	document.getElementById("startDateInput").value = date.toISOString().split("T")[0];
+</script>
+
+</html>
