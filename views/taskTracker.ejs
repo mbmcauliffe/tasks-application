@@ -65,10 +65,10 @@
 					<div class="flexRow">
 						<select id="peopleSelect">
 
-							<option selected>- Select -</option>
+							<option value="" selected>- Select -</option>
 
 							<% for ( i=0; i<people.length; i++ ) { %>
-								<option id="<%= "person" + i %>" value="<%= people[i].id %>"><%= people[i].firstName + " " + people[i].lastName + " ( " + people[i].email + " )"%></option>
+								<option value="<%= people[i].id %>"><%= people[i].firstName + " " + people[i].lastName + " ( " + people[i].email + " )"%></option>
 							<% } %>
 
 						</select>

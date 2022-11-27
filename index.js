@@ -63,16 +63,6 @@ const mongoose = require("mongoose");
 const User = require("./models/User");
 const Task = require("./models/Task");
 
-async function printUsers(){
-	const allUsers = await User.find();
-
-	for ( i=0; i<allUsers.length; i++ ) {
-		console.log(allUsers[i]);
-	}
-
-}
-printUsers();
-
 // Open and Log MongoDB Connection
 mongoose.connect("mongodb://localhost/taskApplication");
 const db = mongoose.connection;

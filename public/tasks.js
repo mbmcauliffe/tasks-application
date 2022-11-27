@@ -41,3 +41,17 @@ async function submitPost() {
 	return
 
 }
+
+function addPeople () {
+
+	const personId = document.getElementById("peopleSelect").value;
+
+	if ( personId == "" ) {
+		return
+	}
+
+	task.people.push(personId);
+
+	// Insert Document Fragmentation here
+
+}
