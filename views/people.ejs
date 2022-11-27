@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>People | Task Manager</title>
-	<link rel="stylesheet" href="https://global.mbmcauliffe.net/global.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="../global.css" crossorigin="anonymous">
 	<script type="text/javascript" src='https://global.mbmcauliffe.net/global.js'  crossorigin="anonymous" defer></script>
 	<link rel="icon" type="image/x-icon" href="/img/favicon.png">
 </head>
@@ -54,36 +54,40 @@
 
 	<main>
 		
-		<div class="flexRow" style="height: 3em; width: 100%; border-bottom: 0.2em solid var(--color1); justify-content: center;margin-bottom: 0.5em">
+		<div class="flexRow" style="height: 3em; width: 100%; border-bottom: 0.2em solid var(--color1); justify-content: center; flex-shrink: 0;">
 			<input type="text" id='emailInput' style="width:30%; text-align: center; border: 0.1em solid var(--color1); border-right: none" placeholder="Invite By Email Address">
 			<div class="button" style="height:1.1em; line-height: 1.1em;" onclick="submitPost()">Invite</div>
 		</div>
 
-		<div class="hideScroll" style="width:90%; margin:auto">
+		<div class="tableWrapper">
 			<table>
-				<th>First Name</th>
-				<th>Last Name</th>
-				<th>Email Address</th>
-				<th>Status</th>
-				<th class="deleteSpacer"></th>
-			</table>
-		</div>
 
-		<div class="tableWrapper hidescroll" style="width:90%; margin:auto">
-			<table>
-				
-				<% for ( i=0; i<people.length; i++ ) { %>
-
+				<thead>
 					<tr>
-						<td><%= people[i].firstName %></td>
-						<td><%= people[i].lastName %></td>
-						<td><%= people[i].email %></td>
-						<td>Status</td>
-						<td class="deleteSymbol"></td>
+						<th>First Name</th>
+						<th>Last Name</th>
+						<th>Email Address</th>
+						<th>Status</th>
+						<th class="deleteSpacer"></th>
 					</tr>
+				</thead>
 
-				<% } %>
+				<tbody>
+					
+					<% for ( i=0; i<people.length; i++ ) { %>
 
+						<tr>
+							<td><%= people[i].firstName %></td>
+							<td><%= people[i].lastName %></td>
+							<td><%= people[i].email %></td>
+							<td>Status</td> <!-- Sort Array by Status -> First Name -> Last Name -->
+							<td class="deleteSymbol"></td> <!-- replace with addSymbol if status === pending -->
+						</tr>
+
+					<% } %>
+
+				</tbody>
+				
 			</table>
 		</div>
 
