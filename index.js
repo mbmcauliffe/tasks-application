@@ -61,7 +61,7 @@ const mongoose = require("mongoose");
 
 // Import Data Models
 const User = require("./models/User");
-//const Task = require("./models/Task");
+const Task = require("./models/Task");
 
 // Open and Log MongoDB Connection
 mongoose.connect("mongodb://localhost/task-application");
@@ -89,6 +89,8 @@ function convertToken(req, res, next){
 
 async function authorizeToken( req, res, next ){
 	// Compare tokens passed by requests to the auth database
+
+	req.headers.user = null;
 
 	// Reject if the token does not exist
 	if ( req.headers.authorization == null ) {
@@ -119,8 +121,14 @@ async function authorizeToken( req, res, next ){
 			return res.status("403.ejs").redirect("/login");
 		}
 
+		// Attach the user's information to be used later in the application
+		req.headers.user = {
+			email: existingUser.email,
+			sharePartners: existingUser.sharedPartners
+		};
+
 		// Create a token to be sent back to the user browser
-		const userToken = jwt.sign({ email: tokenData.email }, tokenSecret, {expiresIn: '604800s'});
+		const userToken = jwt.sign({ email: existingUser.email }, tokenSecret, {expiresIn: '604800s'});
 
 		// Send the user's token as both and authorization header and as a cookie
 		res.set("Access-Control-Expose-Headers", "authorization");
@@ -135,9 +143,10 @@ async function authorizeToken( req, res, next ){
 
 //////////////////////////////// Middleware ////////////////////////////////
 
-// Static Resource Configuration
+// Reference Configuration
 app.set('view-engine', 'ejs');
 app.set('views', './views');
+app.use(express.static('/public'));
 
 // Request Processing
 app.use(bodyParser.json());
@@ -261,6 +270,8 @@ app.post('/create', async (req, res) => {
 
 });
 
+/*
+
 app.get('/', async (req, res, next) => {
 
 	// Prevent logged-in users from using this route
@@ -275,9 +286,21 @@ app.get('/', async (req, res, next) => {
 
 app.use(authorizeToken);
 
+*/
+
 app.get('/', async (req, res, next) => {
 
-	return res.render("taskTracker.ejs");
+	const tasks = await Task.find({ people: { $in: "test@test.test" } });
+	const user = await User.findOne({ email: "test@test.test" });
+
+	return res.render("taskTracker.ejs", {
+		user: {
+			firstName: user.firstName,
+			lastName: user.lastName
+		},
+		tasks: tasks,
+		sharePartners: user.sharePartners //req.headers.user.sharePartners
+	});
 
 });
 
