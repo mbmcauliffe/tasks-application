@@ -2,12 +2,10 @@
 
 - DELETE functions for tasks and users
 
-- Maybe pad-out tables to full width
-
 - User email verification
 
 - User pending and approved system
 
 - Add Complete Status
 
-- Remove bottom buttons from scrollable area of prompts
+- Remove static secret
