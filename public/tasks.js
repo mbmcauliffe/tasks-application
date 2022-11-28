@@ -92,6 +92,13 @@ function removePerson ( personId ) {
 
 }
 
+function addZeros( value ){
+	if( value < 10 ){
+		value = "0" + value;
+	}
+	return value
+}
+
 function editTask( taskId ){
 
 	const taskData = JSON.parse(document.getElementById( "taskData" + taskId ).value);
@@ -104,11 +111,17 @@ function editTask( taskId ){
 	
 	document.getElementById("startDateInput").value = new Date( taskData.startDate ).toISOString().split("T")[0];
 	document.getElementById("endDateInput").value = new Date( taskData.endDate ).toISOString().split("T")[0];
-	document.getElementById("timeSelect").value = new Date( taskData.endDate ).toISOString().split("T")[1].split(".")[0];
+
+	const date = new Date(taskData.endDate);
+	const hours = addZeros(date.getHours());
+	const minutes = addZeros(date.getMinutes());
+	const seconds = addZeros(date.getSeconds());
+	document.getElementById("timeSelect").value =  hours + ":" + minutes + ":" + seconds;
 
 	for ( i=0; i<taskData.people.length; i++ ) {
 		addPerson(taskData.people[i]);
 	}
+	document.getElementById("personSelect")[0].selected = "selected";
 
 	const statusSelect = document.getElementById("statusSelect");
 	statusSelect.value = "Incomplete";

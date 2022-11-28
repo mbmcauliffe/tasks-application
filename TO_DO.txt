@@ -1,5 +1,3 @@
-- Fix endDate in editing relies on Zulu time which is out of range
-
 - DELETE functions for tasks and users
 
 - User email verification
@@ -11,3 +9,5 @@
 - Change People List in Task Editor to block/hidden scheme
 
 - Add 60 second refresh if not editing
+
+- Add Overdue Highlighting
