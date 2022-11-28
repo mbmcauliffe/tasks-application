@@ -11,3 +11,5 @@
 - Add 60 second refresh if not editing
 
 - Add Overdue Highlighting
+
+- Fix missing start date in new task

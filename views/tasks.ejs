@@ -15,6 +15,11 @@
 	.inputBlock{
 		width: 95%;
 	}
+	.overdue{
+		background:red;
+		color:white;
+		font-weight:bold
+	}
 </style>
 
 <body>
@@ -60,7 +65,7 @@
 						<tr class="hasLink<% if ( locals.tasks[i].status == "Complete" ) { %> complete" style="display:none<% } %>" onclick="editTask('<%= locals.tasks[i].id %>');">
 							<td id="<%= 'title' + locals.tasks[i].id %>"><%= locals.tasks[i].title %></td>
 							<td id="<%= 'description' + locals.tasks[i].id %>"><%= locals.tasks[i].description %></td>
-							<td id="<%= 'status' + locals.tasks[i].id %>"><%= locals.tasks[i].status %></td> <!-- Sort Array by Status -> end date -> title -->
+							<td id="<%= 'status' + locals.tasks[i].id %>" <% if ( locals.tasks[i].status == "Overdue"){ %>class="overdue"<% } %> ><%= locals.tasks[i].status %></td>
 							<td id="<%= 'timeRemaining' + locals.tasks[i].id %>"><%= locals.tasks[i].timeRemaining %></td>
 						</tr>
 
