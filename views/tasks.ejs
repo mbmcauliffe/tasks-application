@@ -199,8 +199,12 @@
 </body>
 
 <script type="text/javascript">
-	const date = new Date().toLocaleString('en-US', { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
-	document.getElementById("startDateInput").value = new Date(date.split(", ")[0]).toISOString().split("T")[0];
+
+	function setDefaultStart (){
+		const date = new Date().toLocaleString('en-US', { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
+		document.getElementById("startDateInput").value = new Date(date.split(", ")[0]).toISOString().split("T")[0];
+	}
+	
 </script>
 
 </html>
