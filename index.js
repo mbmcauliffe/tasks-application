@@ -287,7 +287,7 @@ app.use(authorizeToken);
 
 app.get('/people', async (req, res, next) => {
 
-	const user = await User.findOne({ email: "test@test.test" });
+	const user = await User.findOne({ email: req.headers.user.email });
 
 	var people = [];
 
