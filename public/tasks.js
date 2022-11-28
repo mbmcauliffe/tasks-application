@@ -4,6 +4,7 @@ var task = {
 	description: null,
 	startDate: null,
 	endDate: null,
+	status: null,
 	people: [ document.getElementById("userId").value ]
 }
 
@@ -14,6 +15,7 @@ async function submitPost() {
 	task.description = await document.getElementById("descriptionInput").value;
 	task.startDate = await document.getElementById("startDateInput").value;
 	task.endDate = await new Date(document.getElementById("endDateInput").value + "T" + document.getElementById("timeSelect").value);
+	task.status = await document.getElementById("statusSelect").value;
 
 	const response = await fetch('/', {
 		method: 'POST',
@@ -94,6 +96,7 @@ function editTask( taskId ){
 
 	const taskData = JSON.parse(document.getElementById( "taskData" + taskId ).value);
 
+	task.id = taskId;
 	document.getElementById("promptHeading").innerText = "Edit Task";
 
 	document.getElementById("titleInput").value = taskData.title;
@@ -106,6 +109,13 @@ function editTask( taskId ){
 	for ( i=0; i<taskData.people.length; i++ ) {
 		addPerson(taskData.people[i]);
 	}
+
+	const statusSelect = document.getElementById("statusSelect");
+	statusSelect.value = "Incomplete";
+	if ( taskData.status === "Complete" ) {
+		statusSelect.value = "Complete";
+	}
+	document.getElementById("statusSelectBlock").style.setProperty("display", "block");
 	
 	raisePrompt();
 
@@ -118,6 +128,9 @@ function closeTaskEdit() {
 
 	document.getElementById("timeSelect")[0].selected = "selected";
 	document.getElementById("personSelect")[0].selected = "selected";
+	document.getElementById("statusSelect")[0].selected = "selected";
+
+	document.getElementById("statusSelectBlock").style.setProperty("display", "none");
 
 	for ( i=1; i<task.people.length; i++ ) {
 
@@ -128,6 +141,36 @@ function closeTaskEdit() {
 	task.people = [ task.people[0] ];
 
 	closePrompt(true);
+
+}
+
+function showCompleted(){
+
+	const completionButton = document.getElementById("completionButton");
+
+	const complete = document.querySelectorAll(".complete");
+
+	for ( i=0; i<complete.length; i++ ) {
+		complete[i].style.setProperty("display", "table-row");
+	}
+
+	completionButton.setAttribute("onclick", "hideCompleted()");
+	completionButton.innerText = "Hide Completed";
+
+}
+
+function hideCompleted(){
+
+	const completionButton = document.getElementById("completionButton");
+
+	const complete = document.querySelectorAll(".complete");
+
+	for ( i=0; i<complete.length; i++ ) {
+		complete[i].style.setProperty("display", "none");
+	}
+
+	completionButton.setAttribute("onclick", "showCompleted()");
+	completionButton.innerText = "Show Completed";
 
 }
 

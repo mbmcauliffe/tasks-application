@@ -344,7 +344,7 @@ app.post('/people', async (req, res, next) => {
 app.get('/', async (req, res, next) => {
 
 	const user = await User.findOne({ email: req.headers.user.email });
-	const tasks = await Task.find({ people: { $in: user._id } });
+	var tasks = await Task.find({ people: { $in: user._id } });
 
 	var people = [];
 
@@ -361,20 +361,21 @@ app.get('/', async (req, res, next) => {
 
 	}
 
+	const timeNow = new Date();
+
 	for ( i=0; i<tasks.length; i++ ) {
 
 		const startDate = new Date( tasks[i].startDate );
-		const timeNow = new Date();
 		const endDate = new Date( tasks[i].endDate );
 
 		const milisecondsElapsed = ( timeNow.getTime() - startDate.getTime() );
-		const milisecondsRemaining = ( endDate.getTime() - timeNow.getTime() );
+		const milisecondsRemaining = await ( endDate.getTime() - timeNow.getTime() );
 
-		if ( tasks.status != "Complete" ) {
+		if ( tasks[i].status != "Complete" ) {
 
 			tasks[i].status = "Open";
 
-			if ( milisecondsElapsed < 0 ) {
+			if ( tasks[i].milisecondsElapsed < 0 ) {
 				tasks[i].status = "Future"
 			}
 
@@ -393,6 +394,12 @@ app.get('/', async (req, res, next) => {
 		}
 
 	}
+
+	await tasks.sort( ( a, b )=>{
+
+		return (a.endDate.getTime() - timeNow.getTime()) - (b.endDate.getTime() - timeNow.getTime())
+
+	} );
 
 	return res.render("tasks.ejs", {
 		user: {
@@ -417,7 +424,14 @@ app.post('/', async (req, res, next) => {
 		}));
 	}
 
-	if ( req.body.endDate == null ) {
+	if ( req.body.startDate == null || req.body.startDate == "") {
+		return res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: "The Start Date field is required."
+		}));
+	}
+
+	if ( req.body.endDate == null || req.body.endDate == "") {
 		return res.status(400).send(JSON.stringify({
 			title: "Invalid",
 			message: "The End Date field is required."
@@ -426,8 +440,9 @@ app.post('/', async (req, res, next) => {
 
 	if ( req.body.id == null ) {
 		task = new Task();
+		task._id = crypto.randomBytes(16).toString("HEX");
 	} else {
-		task = Task.findOne({ _id: req.body.id });
+		task = await Task.findOne({ _id: req.body.id });
 	}
 
 	if ( task == null ) {
@@ -437,12 +452,16 @@ app.post('/', async (req, res, next) => {
 		}));
 	}
 
-	task._id = crypto.randomBytes(16).toString("HEX");
 	task.title = req.body.title;
 	task.description = req.body.description;
 	task.startDate = req.body.startDate;
 	task.endDate = req.body.endDate;
 	task.people = req.body.people;
+	task.status = req.body.status;
+
+	if ( task.status == null || task.status == "" ) {
+		task.status = "Created";
+	}
 
 	if ( task.description == null || req.body.description == ""){
 		task.description = "-";

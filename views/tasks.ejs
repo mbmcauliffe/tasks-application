@@ -30,6 +30,10 @@
 	</header>
 
 	<main>
+
+		<div style="min-width: 60vw; max-width: 90vw; margin:0 auto; display: flex;">
+			<div class="button type2" id="completionButton" onclick="showCompleted()">Show Completed</div>
+		</div>
 		
 		<div class="tableWrapper">
 			<table style="min-width: 60vw">
@@ -53,7 +57,7 @@
 					
 					<% for ( i=0; i<locals.tasks.length; i++ ) { %>
 
-						<tr class="hasLink" onclick="editTask('<%= locals.tasks[i].id %>');" >
+						<tr class="hasLink<% if ( locals.tasks[i].status == "Complete" ) { %> complete" style="display:none<% } %>" onclick="editTask('<%= locals.tasks[i].id %>');">
 							<td id="<%= 'title' + locals.tasks[i].id %>"><%= locals.tasks[i].title %></td>
 							<td id="<%= 'description' + locals.tasks[i].id %>"><%= locals.tasks[i].description %></td>
 							<td id="<%= 'status' + locals.tasks[i].id %>"><%= locals.tasks[i].status %></td> <!-- Sort Array by Status -> end date -> title -->
@@ -131,6 +135,17 @@
 						<option value="17:30:00">- 5:30 PM</option>
 						<option value="18:00:00">6:00 PM</option>						
 						<option value="18:30:00">- 6:30 PM</option>
+
+					</select>
+				</div>
+
+				<div class='inputBlock' id="statusSelectBlock" style="display: none" onkeydown="return enterHandling(event.key);">
+					<div>Status:</div>
+					<select id="statusSelect">
+
+						<option value="" selected>- Select -</option>
+						<option value="Complete">Complete</option>
+						<option value="Incomplete">Incomplete</option>
 
 					</select>
 				</div>

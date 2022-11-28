@@ -6,6 +6,8 @@
 
 - User pending and approved system
 
-- Add Complete Status
-
 - Remove static secret
+
+- Change People List in Task Editor to block/hidden scheme
+
+- Add 60 second refresh if not editing
