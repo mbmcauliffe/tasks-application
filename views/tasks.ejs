@@ -13,17 +13,18 @@
 
 <style type="text/css">
 	.inputBlock{
-		width: 100%;
+		width: 95%;
 	}
 </style>
 
 <body>
+	<script>0</script> <!-- Firefox Bug Fix -->
 
 	<header>
 		<div></div>
 		<div class="flexRow">
-			<a class="button type2" href="/people" >People</a>
 			<div class="button" onclick="raisePrompt('titleInput')">New Task</div>
+			<a class="button type2" href="/people" >People</a>
 			<div class="button type2" onclick="logout()">Log Out</div>
 		</div>
 	</header>
@@ -31,10 +32,10 @@
 	<main>
 		
 		<div class="tableWrapper">
-			<table>
+			<table style="min-width: 60vw">
 
 				<thead>
-					<% if ( tasks.length == 0 ) { %>
+					<% if ( locals.tasks.length == 0 ) { %>
 						<tr>
 							<th>No Tasks Currently Exist</th>
 						</tr>
@@ -50,14 +51,16 @@
 
 				<tbody>
 					
-					<% for ( i=0; i<tasks.length; i++ ) { %>
+					<% for ( i=0; i<locals.tasks.length; i++ ) { %>
 
-						<tr>
-							<td><%= tasks[i].title %></td>
-							<td><%= tasks[i].description %></td>
-							<td>Status</td> <!-- Sort Array by Status -> end date -> title -->
-							<td>Time Remaining</td>
+						<tr class="hasLink" onclick="editTask('<%= locals.tasks[i].id %>');" >
+							<td id="<%= 'title' + locals.tasks[i].id %>"><%= locals.tasks[i].title %></td>
+							<td id="<%= 'description' + locals.tasks[i].id %>"><%= locals.tasks[i].description %></td>
+							<td id="<%= 'status' + locals.tasks[i].id %>"><%= locals.tasks[i].status %></td> <!-- Sort Array by Status -> end date -> title -->
+							<td id="<%= 'timeRemaining' + locals.tasks[i].id %>"><%= locals.tasks[i].timeRemaining %></td>
 						</tr>
+
+						<input type="hidden" id="taskData<%= locals.tasks[i].id %>" value='<%= JSON.stringify(locals.tasks[i]) %>'>
 
 					<% } %>
 
@@ -78,7 +81,7 @@
 
 			<div>
 				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
-					<div>Title:</div>
+					<div>Title: *</div>
 					<input type="text" id='titleInput'>
 				</div>
 
@@ -93,8 +96,43 @@
 				</div>
 
 				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
-					<div>End Date:</div>
+					<div>End Date: *</div>
 					<input type="date" id='endDateInput'>
+				</div>
+
+				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
+					<div>End Time:</div>
+					<select id="timeSelect">
+
+						<option value="00:00:00" selected>- Select -</option>
+						<option value="06:00:00">6:00 AM</option>
+						<option value="06:30:00">- 6:30 AM</option>
+						<option value="07:00:00">7:00 AM</option>						
+						<option value="07:30:00">- 7:30 AM</option>
+						<option value="08:00:00">8:00 AM</option>						
+						<option value="08:30:00">- 8:30 AM</option>
+						<option value="09:00:00">9:00 AM</option>						
+						<option value="09:30:00">- 9:30 AM</option>
+						<option value="10:00:00">10:00 AM</option>						
+						<option value="10:30:00">- 10:30 AM</option>
+						<option value="11:00:00">6:00 AM</option>						
+						<option value="11:30:00">- 6:30 AM</option>
+						<option value="12:00:00">12:00 PM</option>						
+						<option value="12:30:00">- 12:30 PM</option>
+						<option value="13:00:00">1:00 PM</option>						
+						<option value="13:30:00">- 1:30 PM</option>
+						<option value="14:00:00">2:00 PM</option>						
+						<option value="14:30:00">- 2:30 PM</option>
+						<option value="15:00:00">3:00 PM</option>						
+						<option value="15:30:00">- 3:30 PM</option>
+						<option value="16:00:00">4:00 PM</option>						
+						<option value="16:30:00">- 4:30 PM</option>
+						<option value="17:00:00">5:00 PM</option>						
+						<option value="17:30:00">- 5:30 PM</option>
+						<option value="18:00:00">6:00 PM</option>						
+						<option value="18:30:00">- 6:30 PM</option>
+
+					</select>
 				</div>
 
 				<div class='inputBlock' id="peopleBlock" onkeydown="return addPeople(event.key);">
@@ -105,8 +143,8 @@
 
 							<option value="" selected>- Select -</option>
 
-							<% for ( i=0; i<people.length; i++ ) { %>
-								<option value="<%= people[i].id %>"><%= people[i].firstName + " " + people[i].lastName + " ( " + people[i].email + " )"%></option>
+							<% for ( i=0; i<locals.people.length; i++ ) { %>
+								<option value="<%= locals.people[i].id %>"><%= locals.people[i].firstName + " " + locals.people[i].lastName + " ( " + locals.people[i].email + " )"%></option>
 							<% } %>
 
 						</select>
@@ -121,7 +159,7 @@
 			<div style='display:flex;padding-top:1em'>
 
 				<div class='button' onclick="submitPost();">Save</div>
-				<div class='button type2' onClick="closePrompt(true)">Cancel</div>
+				<div class='button type2' onClick="closeTaskEdit()">Cancel</div>
 				
 			</div>
 			
@@ -141,8 +179,8 @@
 </body>
 
 <script type="text/javascript">
-	const date = new Date();
-	document.getElementById("startDateInput").value = date.toISOString().split("T")[0];
+	const date = new Date().toLocaleString('en-US', { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
+	document.getElementById("startDateInput").value = new Date(date.split(", ")[0]).toISOString().split("T")[0];
 </script>
 
 </html>

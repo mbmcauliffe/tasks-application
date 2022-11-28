@@ -133,7 +133,7 @@ async function authorizeToken( req, res, next ){
 		// Send the user's token as both and authorization header and as a cookie
 		res.set("Access-Control-Expose-Headers", "authorization");
 		res.set("authorization", "Bearer " + userToken);
-		res.cookie('authorization', "Bearer " + userToken, { httpOnly:true, /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
+		res.cookie('authorization', "Bearer " + userToken, { httpOnly:true, sameSite: "Strict", /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
 
 		next();
 
@@ -217,7 +217,7 @@ app.post('/login', async (req, res) => {
 	// Send the user's token as both and authorization header and as a cookie
 	res.set("Access-Control-Expose-Headers", "authorization");
 	res.set("authorization", "Bearer " + userToken);
-	res.cookie('authorization', "Bearer " + userToken, { httpOnly:true, /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
+	res.cookie('authorization', "Bearer " + userToken, { httpOnly:true, sameSite: "Strict", /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
 	
 	// Trigger the Front-End to redirect to its destination
 	res.status(200).send();
@@ -361,6 +361,39 @@ app.get('/', async (req, res, next) => {
 
 	}
 
+	for ( i=0; i<tasks.length; i++ ) {
+
+		const startDate = new Date( tasks[i].startDate );
+		const timeNow = new Date();
+		const endDate = new Date( tasks[i].endDate );
+
+		const milisecondsElapsed = ( timeNow.getTime() - startDate.getTime() );
+		const milisecondsRemaining = ( endDate.getTime() - timeNow.getTime() );
+
+		if ( tasks.status != "Complete" ) {
+
+			tasks[i].status = "Open";
+
+			if ( milisecondsElapsed < 0 ) {
+				tasks[i].status = "Future"
+			}
+
+			if ( milisecondsRemaining < 0 ) {
+				tasks[i].status = "Overdue"
+			}
+
+		}
+
+		const daysRemaining = Math.trunc( milisecondsRemaining / 1000 / 60 / 60 / 24 );
+
+		tasks[i].timeRemaining = daysRemaining + " Days";
+
+		if ( daysRemaining < 5 && daysRemaining > -5 ) {
+			tasks[i].timeRemaining = Math.trunc( milisecondsRemaining / 1000 / 60 / 60 )+ " Hours";
+		}
+
+	}
+
 	return res.render("tasks.ejs", {
 		user: {
 			id: user._id,
@@ -376,6 +409,20 @@ app.get('/', async (req, res, next) => {
 app.post('/', async (req, res, next) => {
 
 	var task;
+
+	if ( req.body.title == null || req.body.title == "") {
+		return res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: "The Title field is required."
+		}));
+	}
+
+	if ( req.body.endDate == null ) {
+		return res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: "The End Date field is required."
+		}));
+	}
 
 	if ( req.body.id == null ) {
 		task = new Task();
@@ -396,6 +443,10 @@ app.post('/', async (req, res, next) => {
 	task.startDate = req.body.startDate;
 	task.endDate = req.body.endDate;
 	task.people = req.body.people;
+
+	if ( task.description == null || req.body.description == ""){
+		task.description = "-";
+	}
 
 	task.save();
 

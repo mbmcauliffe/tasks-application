@@ -12,7 +12,8 @@ const taskSchema = new mongoose.Schema({
 	},
 	description: {
 		type: String,
-		required: true
+		required: true,
+		default: "-"
 	},
 	people: {
 		type: Array,
@@ -25,6 +26,11 @@ const taskSchema = new mongoose.Schema({
 	endDate: {
 		type: Date,
 		required: true
+	},
+	status: {
+		type: String,
+		required: true,
+		default: "Created"
 	}
 
 });
