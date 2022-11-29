@@ -44,6 +44,35 @@ async function submitPost() {
 
 }
 
+async function deleteTask() {
+
+	const response = await fetch('/', {
+		method: 'DELETE',
+		headers: {
+		'Content-Type': 'application/json'
+	},
+		body: JSON.stringify({ id: task.id })
+	});
+
+	if(response.status === 200){
+
+		window.location.replace("/");
+		return
+
+	}
+
+	if ( response.status === 400 ) {
+		const textResponse = await response.text();
+
+		const error = await JSON.parse(textResponse);
+		console.log(error);
+		raiseError(error);
+	}
+
+	return
+
+}
+
 function addPerson ( personId=null ) {
 
 	const select = document.getElementById("personSelect");
@@ -67,11 +96,13 @@ function addPerson ( personId=null ) {
     row.style.setProperty("justify-content", "flex-start");
 
     row.appendChild(document.createElement("div"));
-    Array.from(row.children)[row.children.length-1].innerText = select.options[select.selectedIndex].text;
+    Array.from(row.children)[row.children.length-1].classList.add("button");
+    Array.from(row.children)[row.children.length-1].classList.add("red");
+    Array.from(row.children)[row.children.length-1].innerText = "Remove"
+    Array.from(row.children)[row.children.length-1].setAttribute("onclick", "removePerson('" + personId + "')");
 
     row.appendChild(document.createElement("div"));
-    Array.from(row.children)[row.children.length-1].classList.add("deleteSymbol");
-    Array.from(row.children)[row.children.length-1].setAttribute("onclick", "removePerson('" + personId + "')");
+    Array.from(row.children)[row.children.length-1].innerText = select.options[select.selectedIndex].text;
 
     document.getElementById("peopleBlock").appendChild(fragment);
     Array.from(peopleBlock.children)[peopleBlock.children.length-1].id = "fragment" + personId;
@@ -129,6 +160,8 @@ function editTask( taskId ){
 		statusSelect.value = "Complete";
 	}
 	document.getElementById("statusSelectBlock").style.setProperty("display", "block");
+
+	document.getElementById("deleteTaskButton").style.setProperty("display", "block");
 	
 	raisePrompt();
 
@@ -144,6 +177,7 @@ function closeTaskEdit() {
 	document.getElementById("statusSelect")[0].selected = "selected";
 
 	document.getElementById("statusSelectBlock").style.setProperty("display", "none");
+	document.getElementById("deleteTaskButton").style.setProperty("display", "none");
 
 	for ( i=1; i<task.people.length; i++ ) {
 

@@ -285,6 +285,20 @@ app.get('/', async (req, res, next) => {
 
 app.use(authorizeToken);
 
+app.delete('/logout', async (req, res) => {
+
+	// Set the Authorization Header to a useless value
+	res.set("Access-Control-Expose-Headers", "authorization");
+	res.set("authorization", "Bearer " + "Logged-Out");
+
+	// Invalidate the user's authorization cookie
+	res.clearCookie('authorization', { httpOnly:true, /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
+
+	// Trigger the Front-End to redirect to its destination
+	res.status(200).send();
+
+});
+
 app.get('/people', async (req, res, next) => {
 
 	const user = await User.findOne({ email: req.headers.user.email });
@@ -473,17 +487,11 @@ app.post('/', async (req, res, next) => {
 
 });
 
-app.delete('/logout', async (req, res) => {
+app.delete('/', async (req, res) => {
 
-	// Set the Authorization Header to a useless value
-	res.set("Access-Control-Expose-Headers", "authorization");
-	res.set("authorization", "Bearer " + "Logged-Out");
+	await Task.deleteOne({ _id: req.body.id });
 
-	// Invalidate the user's authorization cookie
-	res.clearCookie('authorization', { httpOnly:true, /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
-
-	// Trigger the Front-End to redirect to its destination
-	res.status(200).send();
+	return res.status(200).send()
 
 });
 
