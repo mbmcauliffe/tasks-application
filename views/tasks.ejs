@@ -35,10 +35,11 @@
 	</header>
 
 	<main>
-
-		<div style="min-width: 60vw; max-width: 90vw; margin:0 auto; display: flex;">
-			<div class="button type2" id="completionButton" onclick="showCompleted()">Show Completed</div>
-		</div>
+		<% if ( locals.tasks.length != 0 ) { %>
+			<div style="min-width: 60vw; max-width: 90vw; margin:0 auto; display: flex;">
+				<div class="button type2" id="completionButton" onclick="showCompleted()">Show Completed</div>
+			</div>
+		<% } %>
 		
 		<div class="tableWrapper">
 			<table style="min-width: 60vw">
