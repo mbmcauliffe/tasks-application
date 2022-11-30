@@ -10,17 +10,15 @@
 </head>
 
 <script type="text/javascript" defer>
-	
-	async function submitPost(){
 
-		const email = await document.getElementById("emailInput").value;
+	async function peopleFetch( endpoint, method, body ) {
 
-		const response = await fetch('/people', {
-	      method: 'POST',
+		const response = await fetch(endpoint, {
+	      method: method,
 	      headers: {
 	        'Content-Type': 'application/json'
 	      },
-	      body: JSON.stringify({ email: email }),
+	      body: JSON.stringify( body ),
 	    });
 
 	    if(response.status === 200){
@@ -36,7 +34,27 @@
 	    	const error = await JSON.parse(textResponse);
 	    	console.log(error);
 	    	raiseError(error);
-	    }	
+	    }
+
+	}
+	
+	function submitPost(){
+
+		const email = document.getElementById("emailInput").value;
+
+		peopleFetch( "/people", "POST", { email: email } );
+
+	}
+
+	function removePerson( id ){
+
+		peopleFetch( "/people", "DELETE", { id: id } );
+
+	}
+
+	function removePending( email ){
+
+		peopleFetch( "/people/pending", "DELETE", { email: email } );
 
 	}
 
@@ -55,9 +73,54 @@
 	<main>
 		
 		<div class="flexRow" style="height: 3em; width: 100%; border-bottom: 0.2em solid var(--color1); justify-content: center; flex-shrink: 0;">
-			<input type="text" id='emailInput' autofocus style="width:30%; border: 0.1em solid var(--color1); border-right: none" placeholder="Invite By Email Address">
-			<div class="button" style="height:1.1em; line-height: 1.1em;" onclick="submitPost()">Invite</div>
+			<input type="text" id='emailInput' autofocus style="width:30%; border: 0.1em solid var(--color1)" placeholder="Invite By Email Address">
+			<div class="button" style="height:1.1em; line-height: 1.1em;margin-left:1em" onclick="submitPost()">Invite</div>
 		</div>
+
+		<% if ( locals.pending.length != 0 || locals.invited.length != 0 ) { %>
+
+			<div class="tableWrapper">
+				<table>
+
+					<thead>
+						<tr>
+							<th>Email Address</th>
+							<th>Status</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						
+						<% for ( i=0; i<locals.pending.length; i++ ) { %>
+
+							<tr>
+								<td><%= locals.pending[i] %></td>
+								<td>Pending</td>
+								<td style="display: flex; justify-content:space-evenly">
+									<div class="button green">Approve</div>
+									<div class="button red" onclick="removePending('<%= locals.pending[i] %>')">Reject</div>
+								</td>
+							</tr>
+
+						<% } %>
+
+						<% for ( i=0; i<locals.invited.length; i++ ) { %>
+
+							<tr>
+								<td><%= locals.invited[i] %></td>
+								<td>Invited</td>
+								<td><div class="button red" onclick="removePending('<%= locals.invited[i] %>')">Withdraw</div></td>
+							</tr>
+
+						<% } %>
+
+					</tbody>
+					
+				</table>
+			</div>
+
+		<% } %>
 
 		<div class="tableWrapper">
 			<table>
@@ -67,21 +130,19 @@
 						<th>First Name</th>
 						<th>Last Name</th>
 						<th>Email Address</th>
-						<th>Status</th>
 						<th>Action</th>
 					</tr>
 				</thead>
 
 				<tbody>
 					
-					<% for ( i=0; i<people.length; i++ ) { %>
+					<% for ( i=0; i<locals.people.length; i++ ) { %>
 
 						<tr>
-							<td><%= people[i].firstName %></td>
-							<td><%= people[i].lastName %></td>
-							<td><%= people[i].email %></td>
-							<td>Status</td> <!-- Sort Array by Status -> First Name -> Last Name -->
-							<td><div class="button red">Remove</div></td> <!-- replace with addSymbol if status === pending -->
+							<td><%= locals.people[i].firstName %></td>
+							<td><%= locals.people[i].lastName %></td>
+							<td><%= locals.people[i].email %></td>
+							<td><div class="button red" onclick="removePerson( '<%= locals.people[i].id %>' )">Remove</div></td>
 						</tr>
 
 					<% } %>

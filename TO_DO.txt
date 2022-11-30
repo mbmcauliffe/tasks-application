@@ -1,8 +1,4 @@
-- DELETE functions for tasks and users
-
 - User email verification
-
-- User pending and approved system
 
 - Remove static secret
 - Add Helmet
@@ -13,3 +9,7 @@
 - Add 60 second refresh if not editing
 
 - Move email validation to the back-end
+
+- User Approve system
+
+- Fix pending delete system

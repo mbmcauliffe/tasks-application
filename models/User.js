@@ -27,6 +27,16 @@ const userSchema = new mongoose.Schema({
 		type: Array,
 		required: true,
 		default: []
+	},
+	pending: {
+		type: Array,
+		required: true,
+		default: []
+	},
+	invited: {
+		type: Array,
+		required: true,
+		default: []
 	}
 
 });

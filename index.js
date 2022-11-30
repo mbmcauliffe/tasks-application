@@ -318,7 +318,9 @@ app.get('/people', async (req, res, next) => {
 	}
 
 	return res.render("people.ejs", {
-		people: people
+		people: people,
+		pending: user.pending,
+		invited: user.invited
 	});
 
 });
@@ -329,27 +331,72 @@ app.post('/people', async (req, res, next) => {
 	const inviteEmail = req.body.email;
 	const invitedUser = await User.findOne({ email: inviteEmail });
 
-	if ( invitedUser == null ) {
+	if ( user.invited.indexOf( inviteEmail ) >= 0 ) {
 		return res.status(200).send()
 	}
 
-	for ( i=0; i<invitedUser.people.length; i++ ) {
-		if ( invitedUser.people[i]._id == user._id ) {
-			return res.status(200).send()
-		}
-	}
-
-	for ( i=0; i<user.people.length; i++ ) {
-		if ( user.people[i]._id == invitedUser._id ) {
-			return res.status(200).send()
-		}
-	}
-
-	await user.people.push(invitedUser._id);
-	await invitedUser.people.push(user._id);
+	await user.invited.push( inviteEmail );
 
 	await user.save();
-	await invitedUser.save();
+
+	if ( invitedUser !== null ) {
+
+		if ( invitedUser.pending.indexOf( user.email ) >= 0 ) {
+			return res.status(200).send()
+		}
+
+		await invitedUser.pending.push( user.email );
+
+		await invitedUser.save();
+
+	}
+
+	return res.status(200).send()
+
+});
+
+app.delete('/people', async (req, res) => {
+
+	const user = await User.findOne({ email: req.headers.user.email});
+	const deletedUser = await User.findOne({ _id: req.body.id });
+
+	if ( deletedUser == null ) {
+		return res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: "No User was found."
+		}));
+	}
+
+	await user.people.splice(user.people.indexOf( req.body.id ), 1);
+	await deletedUser.people.splice(deletedUser.people.indexOf( user.id ), 1);
+
+	await user.save();
+	await deletedUser.save();
+
+	return res.status(200).send()
+
+});
+
+app.delete('/people/pending', async (req, res) => {
+	
+	const user = await User.findOne({ email: req.headers.user.email});
+	const deletedUser = await User.findOne({ email: req.body.email });
+
+	if ( deletedUser == null ) {
+		return res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: "No User was found."
+		}));
+	}
+
+	await user.pending.splice(user.pending.indexOf( req.body.email ), 1);
+	await deletedUser.pending.splice(deletedUser.pending.indexOf( user.email ), 1);
+
+	await user.invited.splice(user.invited.indexOf( req.body.email ), 1);
+	await deletedUser.invited.splice(deletedUser.invited.indexOf( user.email ), 1);
+
+	await user.save();
+	await deletedUser.save();
 
 	return res.status(200).send()
 
