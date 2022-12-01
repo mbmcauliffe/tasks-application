@@ -123,6 +123,7 @@ async function authorizeToken( req, res, next ){
 
 		// Attach the user's information to be used later in the application
 		req.headers.user = {
+			id: await existingUser._id,
 			email: await existingUser.email,
 			people: await existingUser.people
 		};
@@ -200,6 +201,28 @@ async function importPending ( email ) {
 	return pending
 
 }
+
+async function autoremoveTasks() {
+
+	const tasks = await Task.find();
+
+	var deletedTasksCount = 0;
+
+	for ( i=0; i<tasks.length; i++ ) {
+
+		if ( tasks[i].people.length == 0 ) {
+			await Task.deleteOne({ _id: tasks[i].id });
+			deletedTasksCount++
+		}
+
+	}
+
+	if ( deletedTasksCount > 0 ) {
+		console.log( "Removed " + deletedTasksCount + " vacant tasks from the database." );
+	}
+
+}
+autoremoveTasks();
 
 //////////////////////////////// Middleware ////////////////////////////////
 
@@ -526,6 +549,7 @@ app.get('/', async (req, res, next) => {
 	var tasks = await Task.find({ people: { $in: user._id } });
 
 	var people = [];
+	var taskPeople = [];
 
 	for ( i=0; i<user.people.length; i++ ) {
 
@@ -538,11 +562,35 @@ app.get('/', async (req, res, next) => {
 			lastName: person.lastName
 		});
 
+		taskPeople.push({
+			id: person._id,
+			email: person.email,
+			firstName: person.firstName,
+			lastName: person.lastName
+		});
+
 	}
 
 	const timeNow = new Date();
 
 	for ( i=0; i<tasks.length; i++ ) {
+
+		for ( j=0; j<tasks[i].people.length; j++ ) {
+
+			if ( user.people.indexOf( tasks[i].people[j] ) >= 0 ) {
+				continue
+			}
+
+			const person = await User.findOne({ _id: tasks[i].people[j] });
+
+			taskPeople.push({
+				id: person._id,
+				email: person.email,
+				firstName: person.firstName,
+				lastName: person.lastName
+			});
+
+		}
 
 		const startDate = new Date( tasks[i].startDate );
 		const endDate = new Date( tasks[i].endDate );
@@ -587,7 +635,8 @@ app.get('/', async (req, res, next) => {
 			lastName: user.lastName,
 		},
 		people: people,
-		tasks: tasks
+		tasks: tasks,
+		taskPeople: taskPeople
 	});
 
 });
@@ -629,6 +678,23 @@ app.post('/', async (req, res, next) => {
 			title: "Something went wrong",
 			message: "Please Try Again."
 		}));
+	}
+
+	var peopleList = [ req.headers.user.id ];
+
+	for ( i=0; i<req.headers.user.people.length; i++ ) {
+		peopleList.push( req.headers.user.people[i] )
+	}
+
+	for ( i=0; i<req.body.people.length; i++ ) {
+
+		if ( peopleList.indexOf(req.body.people[i]) < 0 && task.people.indexOf(req.body.people[i]) < 0 ) {
+			return res.status(400).send(JSON.stringify({
+				title: "Unauthorized",
+				message: "You may only add users who appear on your people page."
+			}));
+		}
+
 	}
 
 	task.title = req.body.title;

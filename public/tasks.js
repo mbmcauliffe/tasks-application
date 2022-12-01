@@ -88,26 +88,8 @@ function addPerson ( personId=null ) {
 	}
 
 	task.people.push(personId);
-	
-    const fragment = document.createDocumentFragment();
 
-    const row = fragment.appendChild(document.createElement('div'));
-    row.classList.add("flexRow");
-    row.style.setProperty("justify-content", "flex-start");
-
-    row.appendChild(document.createElement("div"));
-    Array.from(row.children)[row.children.length-1].classList.add("button");
-    Array.from(row.children)[row.children.length-1].classList.add("red");
-    Array.from(row.children)[row.children.length-1].innerText = "Remove"
-    Array.from(row.children)[row.children.length-1].setAttribute("onclick", "removePerson('" + personId + "')");
-
-    row.appendChild(document.createElement("div"));
-    Array.from(row.children)[row.children.length-1].innerText = select.options[select.selectedIndex].text;
-
-    document.getElementById("peopleBlock").appendChild(fragment);
-    Array.from(peopleBlock.children)[peopleBlock.children.length-1].id = "fragment" + personId;
-
-    document.getElementById("personSelect")[0].selected = "selected";
+	document.getElementById( "person" + personId ).style.setProperty("display", "flex");
 
     return
 
@@ -117,7 +99,7 @@ function removePerson ( personId ) {
 
 	task.people.splice(task.people.indexOf(personId), 1);
 
-	document.getElementById( "fragment" + personId ).remove();
+	document.getElementById( "person" + personId ).style.setProperty("display", "none");
 
 	return
 
@@ -179,11 +161,13 @@ function closeTaskEdit() {
 	document.getElementById("statusSelectBlock").style.setProperty("display", "none");
 	document.getElementById("deleteTaskButton").style.setProperty("display", "none");
 
-	for ( i=1; i<task.people.length; i++ ) {
+	for ( i=0; i<task.people.length; i++ ) {
 
-		document.getElementById( "fragment" + task.people[i] ).remove();
+		document.getElementById( "person" + task.people[i] ).style.setProperty("display", "none");
 
 	}
+
+	document.getElementById( "person" + document.getElementById("userId").value ).style.setProperty("display", "flex");
 
 	task.people = [ task.people[0] ];
 
