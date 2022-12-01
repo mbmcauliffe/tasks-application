@@ -10,32 +10,6 @@
 </head>
 
 <script type="text/javascript">
-
-	function validateEmail(email){
-
-	    if(email.split(" ") != email){
-	      return false
-	    }
-
-	    if(email.split("@") == email){
-	      return false
-	    }
-
-	    if(email.split("@")[1].split(".") == email.split("@")[1]){
-	      return false
-	    }
-
-	    if(email.split("@")[1].split(".").length != 2){
-	      return false
-	    }
-
-	    if(email.split("@")[1].split(".")[1] == ""){
-	      return false
-	    }
-
-	    return true
-
-	  }
 	
 	async function submitPost(){
 
@@ -44,50 +18,6 @@
 			raiseError({
 				title: "Invalid Entry",
 				message: "Your passwords don't match."
-			});
-
-			return
-
-		}
-
-		if(document.getElementById("passwordInput").value == ""){
-
-			raiseError({
-				title: "Invalid Entry",
-				message: "Password cannot be empty."
-			});
-
-			return
-
-		}
-
-		if(document.getElementById("firstNameInput").value == ""){
-
-			raiseError({
-				title: "Invalid Entry",
-				message: "First Name cannot be empty."
-			});
-
-			return
-
-		}
-
-		if(document.getElementById("lastNameInput").value == ""){
-
-			raiseError({
-				title: "Invalid Entry",
-				message: "Last Name cannot be empty."
-			});
-
-			return
-
-		}
-
-		if(validateEmail(document.getElementById("emailInput").value) != true){
-
-			raiseError({
-				title: "Invalid Entry",
-				message: "Your Email address must be properly formatted."
 			});
 
 			return
@@ -116,13 +46,12 @@
 	    	return
 	    }
 
-	    const textResponse = await response.text();
-	    
-	    if(textResponse[0] === '{'){
+	    if ( response.status === 400 ) {
+	    	const textResponse = await response.text();
 
-	      const error = await JSON.parse(textResponse);
-	      raiseError(error);
-
+	    	const error = await JSON.parse(textResponse);
+	    	console.log(error);
+	    	raiseError(error);
 	    }
 
 	}

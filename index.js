@@ -141,6 +141,49 @@ async function authorizeToken( req, res, next ){
 
 }
 
+function validateEmail( req, res, next ){
+
+	const email = req.body.email;
+	var reject = false;
+
+	if(email == ""){
+		res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: 'Please use a valid email address.'
+		}));
+	}
+
+	if(email.split(" ") != email){
+		reject = true;
+	}
+
+	if(email.split("@") == email){
+		reject = true;
+	}
+
+	if(email.split("@")[1].split(".") == email.split("@")[1]){
+		reject = true;
+	}
+
+	if(email.split("@")[1].split(".").length != 2){
+		reject = true;
+	}
+
+	if(email.split("@")[1].split(".")[1] == ""){
+		reject = true;
+	}
+
+	if ( reject === true ) {
+		res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: 'Please use a valid email address.'
+		}));
+	}
+
+	next();
+
+}
+
 //////////////////////////////// Middleware ////////////////////////////////
 
 // Reference Configuration
@@ -235,7 +278,7 @@ app.get('/create', async (req, res) => {
 
 });
 
-app.post('/create', async (req, res) => {
+app.post('/create', validateEmail, async (req, res) => {
 
 	// Prevent logged-in users from using this route
 	if ( req.headers.authorization ) {
@@ -250,6 +293,27 @@ app.post('/create', async (req, res) => {
 		return res.status(400).send(JSON.stringify({
 			title: "Email In Use",
 			message: "There is already an account using this email address."
+		}));
+	}
+
+	if( req.body.firstName == "" ){
+		return res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: "Your First Name is Required."
+		}));
+	}
+
+	if( req.body.lastName == "" ){
+		return res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: "Your Last Name is Required."
+		}));
+	}
+
+	if( req.body.password == "" ){
+		return res.status(400).send(JSON.stringify({
+			title: "Invalid",
+			message: "A Password is Required."
 		}));
 	}
 
@@ -357,6 +421,31 @@ app.post('/people', async (req, res, next) => {
 		await invitedUser.save();
 
 	}
+
+	return res.status(200).send()
+
+});
+
+app.post('/people/approve', async (req, res) => {
+
+	const user = await User.findOne({ email: req.headers.user.email});
+	const approvedUser = await User.findOne({ email: req.body.email });
+
+	if ( approvedUser == null ) {
+		return res.status(400).send(JSON.stringify({
+			title: "Unable",
+			message: "This user no longer exists."
+		}));
+	}
+
+	await user.pending.splice(user.pending.indexOf( req.body.email ), 1);
+	await approvedUser.invited.splice(approvedUser.invited.indexOf( user.email ), 1);
+
+	await user.people.push( approvedUser._id );
+	await approvedUser.people.push( user._id );
+
+	await user.save();
+	await approvedUser.save();
 
 	return res.status(200).send()
 

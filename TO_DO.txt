@@ -7,11 +7,3 @@
 - Change People List in Task Editor to block/hidden scheme
 
 - Add 60 second refresh if not editing
-
-- Move email validation to the back-end
-
-- User Approve system
-
-- Fix pending delete system
-
-- Enter-Handle People-Invite
