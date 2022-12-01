@@ -13,3 +13,5 @@
 - User Approve system
 
 - Fix pending delete system
+
+- Enter-Handle People-Invite
