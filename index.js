@@ -184,6 +184,23 @@ function validateEmail( req, res, next ){
 
 }
 
+async function importPending ( email ) {
+
+	const users = await User.find();
+	var pending = [];
+
+	for ( i=0; i<users.length; i++ ) {
+
+		if ( users[i].invited.indexOf( email ) >= 0 ) {
+			pending.push( users[i].email );
+		}
+
+	}
+
+	return pending
+
+}
+
 //////////////////////////////// Middleware ////////////////////////////////
 
 // Reference Configuration
@@ -326,6 +343,7 @@ app.post('/create', validateEmail, async (req, res) => {
 	user.lastName = req.body.lastName;
 	user.email = req.body.email.toLowerCase();
 	user.password = await bcrypt.hash(req.body.password, 8);
+	user.pending = await importPending( user.email );
 
 	// Save the new user
 	user.save();
@@ -399,7 +417,7 @@ app.post('/people', async (req, res, next) => {
 	}
 
 	const user = await User.findOne({ email: req.headers.user.email});
-	const inviteEmail = req.body.email;
+	const inviteEmail = req.body.email.toLowerCase();
 	const invitedUser = await User.findOne({ email: inviteEmail });
 
 	if ( user.invited.indexOf( inviteEmail ) >= 0 ) {
