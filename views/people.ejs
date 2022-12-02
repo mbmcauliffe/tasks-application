@@ -6,79 +6,9 @@
 	<title>People | Task Manager</title>
 	<link rel="stylesheet" href="https://global.mbmcauliffe.net/global.css" crossorigin="anonymous">
 	<script type="text/javascript" src='https://global.mbmcauliffe.net/global.js'  crossorigin="anonymous" defer></script>
+	<script type="text/javascript" src='./people.js' defer></script>
 	<link rel="icon" type="image/x-icon" href="/img/favicon.png">
 </head>
-
-<script type="text/javascript" defer>
-
-	function inviteKey(keyPress){
-
-		if(keyPress == 'Enter'){
-
-			submitPost();
-
-			return keyPress != 'Enter';
-
-		}
-
-		return
-
-	}
-
-	async function peopleFetch( endpoint, method, body ) {
-
-		const response = await fetch(endpoint, {
-	      method: method,
-	      headers: {
-	        'Content-Type': 'application/json'
-	      },
-	      body: JSON.stringify( body ),
-	    });
-
-	    if(response.status === 200){
-
-	    	window.location.replace("/people");
-	    	return
-	    	
-	    }
-
-	    if ( response.status === 400 ) {
-	    	const textResponse = await response.text();
-
-	    	const error = await JSON.parse(textResponse);
-	    	console.log(error);
-	    	raiseError(error);
-	    }
-
-	}
-	
-	function submitPost(){
-
-		const email = document.getElementById("emailInput").value;
-
-		peopleFetch( "/people", "POST", { email: email } );
-
-	}
-
-	function removePerson( id ){
-
-		peopleFetch( "/people", "DELETE", { id: id } );
-
-	}
-
-	function removePending( email ){
-
-		peopleFetch( "/people/pending", "DELETE", { email: email } );
-
-	}
-
-	function approvePending( email ){
-
-		peopleFetch( "/people/approve", "POST", { email: email } );
-
-	}
-
-</script>
 
 <body>
 
@@ -97,7 +27,7 @@
 			<div class="button" style="height:1.1em; line-height: 1.1em;margin-left:1em" onclick="submitPost()">Invite</div>
 		</div>
 
-		<% if ( locals.pending.length != 0 || locals.invited.length != 0 ) { %>
+		<% if ( locals.pending.length != 0 || locals.invited.length != 0 ) { // Display the pending/invited table if there are any pending or invited people %>
 
 			<div class="tableWrapper">
 				<table>
@@ -112,7 +42,7 @@
 
 					<tbody>
 						
-						<% for ( i=0; i<locals.pending.length; i++ ) { %>
+						<% for ( i=0; i<locals.pending.length; i++ ) { // Display each table row showing a pending person only by their email address %>
 
 							<tr>
 								<td><%= locals.pending[i] %></td>
@@ -125,7 +55,7 @@
 
 						<% } %>
 
-						<% for ( i=0; i<locals.invited.length; i++ ) { %>
+						<% for ( i=0; i<locals.invited.length; i++ ) { // Display each table row showing an invited person only by their email address %>
 
 							<tr>
 								<td><%= locals.invited[i] %></td>
@@ -156,7 +86,7 @@
 
 				<tbody>
 					
-					<% for ( i=0; i<locals.people.length; i++ ) { %>
+					<% for ( i=0; i<locals.people.length; i++ ) { // Display with first and last name each person approved by the user and themselves %>
 
 						<tr>
 							<td><%= locals.people[i].firstName %></td>

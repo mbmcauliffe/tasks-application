@@ -1,4 +1,5 @@
 var task = {
+	// This object is updated by user input before and during its submission by POST
 	id: null,
 	title: null,
 	description: null,
@@ -17,50 +18,30 @@ async function submitPost() {
 	task.endDate = await new Date(document.getElementById("endDateInput").value + "T" + document.getElementById("timeSelect").value);
 	task.status = await document.getElementById("statusSelect").value;
 
-	const response = await fetch('/', {
-		method: 'POST',
-		headers: {
-		'Content-Type': 'application/json'
-	},
-		body: JSON.stringify(task),
-	});
-
-	if(response.status === 200){
-
-		window.location.replace("/");
-		return
-
-	}
-
-	if ( response.status === 400 ) {
-		const textResponse = await response.text();
-
-		const error = await JSON.parse(textResponse);
-		console.log(error);
-		raiseError(error);
-	}
+	placeFetch( "/", "POST", task );
 
 	return
 
 }
 
-async function deleteTask() {
+async function placeFetch( endpoint, method, body ) {
 
-	const response = await fetch('/', {
-		method: 'DELETE',
+	// Place the request
+	const response = await fetch(endpoint, {
+		method: method,
 		headers: {
 		'Content-Type': 'application/json'
 	},
-		body: JSON.stringify({ id: task.id })
+		body: JSON.stringify( body )
 	});
 
+	// Refresh the window if the server sends status 200
 	if(response.status === 200){
-
 		window.location.replace("/");
 		return
-
 	}
 
+	// Status 400 is only sent with an error response, rendered here for the user
 	if ( response.status === 400 ) {
 		const textResponse = await response.text();
 
@@ -74,9 +55,11 @@ async function deleteTask() {
 }
 
 function addPerson ( personId=null ) {
+	// Display the person as a member of the task and add their id to the task object for POST requests
+	// Does not actually send information to the server
 
 	const select = document.getElementById("personSelect");
-
+	// This function may be called by the user or by other functions in this script with or without a personId.
 	if ( personId == null ){
 		personId = select.value;
 	} else {
@@ -87,8 +70,10 @@ function addPerson ( personId=null ) {
 		return
 	}
 
+	// Add the personId to the task object
 	task.people.push(personId);
 
+	// Display the indicator that a person is included in the task, rendered by the server as display: none
 	document.getElementById( "person" + personId ).style.setProperty("display", "flex");
 
     return
@@ -97,8 +82,10 @@ function addPerson ( personId=null ) {
 
 function removePerson ( personId ) {
 
+	// Remove the person from the task object
 	task.people.splice(task.people.indexOf(personId), 1);
 
+	// Hide the indicator that the person is included in the task
 	document.getElementById( "person" + personId ).style.setProperty("display", "none");
 
 	return
@@ -106,6 +93,7 @@ function removePerson ( personId ) {
 }
 
 function addZeros( value ){
+	// Add leading zeros to single-digit date values in order to comply with html date input formatting
 	if( value < 10 ){
 		value = "0" + value;
 	}
@@ -113,7 +101,9 @@ function addZeros( value ){
 }
 
 function editTask( taskId ){
+	// Convert the prompt page to edit an already existing task instead of a new one and then raise it to the user's view.
 
+	// Extract information about the task rendered into the html by the server.
 	const taskData = JSON.parse(document.getElementById( "taskData" + taskId ).value);
 
 	task.id = taskId;
@@ -125,17 +115,20 @@ function editTask( taskId ){
 	document.getElementById("startDateInput").value = new Date( taskData.startDate ).toISOString().split("T")[0];
 	document.getElementById("endDateInput").value = new Date( taskData.endDate ).toISOString().split("T")[0];
 
+	// Populate the end time select object with a correctly formatted time adjusted for time zone
 	const date = new Date(taskData.endDate);
 	const hours = addZeros(date.getHours());
 	const minutes = addZeros(date.getMinutes());
 	const seconds = addZeros(date.getSeconds());
 	document.getElementById("timeSelect").value =  hours + ":" + minutes + ":" + seconds;
 
+	// Display the indicators for each of the people on the task
 	for ( i=0; i<taskData.people.length; i++ ) {
 		addPerson(taskData.people[i]);
 	}
 	document.getElementById("personSelect")[0].selected = "selected";
 
+	// Display whether the task is marked as completed or not and then make the status field visible
 	const statusSelect = document.getElementById("statusSelect");
 	statusSelect.value = "Incomplete";
 	if ( taskData.status === "Complete" ) {
@@ -143,6 +136,7 @@ function editTask( taskId ){
 	}
 	document.getElementById("statusSelectBlock").style.setProperty("display", "block");
 
+	// Make the delete task button visible
 	document.getElementById("deleteTaskButton").style.setProperty("display", "block");
 	
 	raisePrompt();
@@ -150,25 +144,30 @@ function editTask( taskId ){
 }
 
 function closeTaskEdit() {
+	// Return the prompt window to its original format if the user cancels an edit on an existing task
 
 	task.id = null;
 	document.getElementById('promptHeading').innerText = 'New Task';
 
+	// Return the selects to their default values
 	document.getElementById("timeSelect")[0].selected = "selected";
 	document.getElementById("personSelect")[0].selected = "selected";
 	document.getElementById("statusSelect")[0].selected = "selected";
 
+	// Hide the edit-specific elements
 	document.getElementById("statusSelectBlock").style.setProperty("display", "none");
 	document.getElementById("deleteTaskButton").style.setProperty("display", "none");
 
 	for ( i=0; i<task.people.length; i++ ) {
-
+		// Hide the indicators of people included in the task
 		document.getElementById( "person" + task.people[i] ).style.setProperty("display", "none");
 
 	}
 
+	// Display the indicator that the user is a member of the newly created task
 	document.getElementById( "person" + document.getElementById("userId").value ).style.setProperty("display", "flex");
 
+	// Remove all people from the task but the user
 	task.people = [ task.people[0] ];
 
 	closePrompt(true);
@@ -176,6 +175,7 @@ function closeTaskEdit() {
 }
 
 function showCompleted(){
+	// Show the completed tasks rendered as display:none by the server when the user clicks on the show completed button
 
 	const completionButton = document.getElementById("completionButton");
 
@@ -185,12 +185,14 @@ function showCompleted(){
 		complete[i].style.setProperty("display", "table-row");
 	}
 
+	// Change the text and behavior of the show completed button
 	completionButton.setAttribute("onclick", "hideCompleted()");
 	completionButton.innerText = "Hide Completed";
 
 }
 
 function hideCompleted(){
+	// Hide the completed tasks when the user clicks on the hide completed button
 
 	const completionButton = document.getElementById("completionButton");
 
@@ -200,10 +202,19 @@ function hideCompleted(){
 		complete[i].style.setProperty("display", "none");
 	}
 
+	// Change the text and behavior of the hide completed button
 	completionButton.setAttribute("onclick", "showCompleted()");
 	completionButton.innerText = "Show Completed";
 
 }
 
+function setDefaultStart (){
+	// Set the start date of a new task to the present day within the user's own time zone
+
+	const date = new Date().toLocaleString('en-US', { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
+	document.getElementById("startDateInput").value = new Date(date.split(", ")[0]).toISOString().split("T")[0];
+}
+
+// Clear any cached data from the prompt
 closeTaskEdit();
 setDefaultStart();

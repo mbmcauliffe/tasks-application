@@ -35,7 +35,7 @@
 	</header>
 
 	<main>
-		<% if ( locals.tasks.length != 0 ) { %>
+		<% if ( locals.tasks.length != 0 ) { // Show the show completed button if one or more tasks exist that list the user as a person %>
 			<div style="min-width: 60vw; max-width: 90vw; margin:0 auto; display: flex;">
 				<div class="button type2" id="completionButton" onclick="showCompleted()">Show Completed</div>
 			</div>
@@ -45,11 +45,11 @@
 			<table style="min-width: 60vw">
 
 				<thead>
-					<% if ( locals.tasks.length == 0 ) { %>
+					<% if ( locals.tasks.length == 0 ) { // Show a banner indicating that no tasks exist that have the user listed as a person %>
 						<tr>
 							<th>No Tasks Currently Exist</th>
 						</tr>
-					<% } else { %>
+					<% } else { // Render the header row of the table %>
 						<tr>
 							<th>Title</th>
 							<th>Description</th>
@@ -61,7 +61,7 @@
 
 				<tbody>
 					
-					<% for ( i=0; i<locals.tasks.length; i++ ) { %>
+					<% for ( i=0; i<locals.tasks.length; i++ ) { // Render the data rows of the table from the tasks object provided by the server %>
 
 						<tr class="hasLink<% if ( locals.tasks[i].status == "Complete" ) { %> complete" style="display:none<% } %>" onclick="editTask('<%= locals.tasks[i].id %>');">
 							<td id="<%= 'title' + locals.tasks[i].id %>"><%= locals.tasks[i].title %></td>
@@ -164,7 +164,7 @@
 
 							<option value="" selected>- Select -</option>
 
-							<% for ( i=0; i<locals.people.length; i++ ) { %>
+							<% for ( i=0; i<locals.people.length; i++ ) { // Add each person who is available to be added to the task to the people select %>
 								<option value="<%= locals.people[i].id %>"><%= locals.people[i].firstName + " " + locals.people[i].lastName + " ( " + locals.people[i].email + " )"%></option>
 							<% } %>
 
@@ -177,7 +177,7 @@
 						<div><%= locals.user.firstName + " " + locals.user.lastName %></div>
 					</div>
 
-					<% for ( i=0; i<locals.taskPeople.length; i++ ) { %>
+					<% for ( i=0; i<locals.taskPeople.length; i++ ) { // For each person on the task already or available to be added to the task, add an indicator that can be used to show them as being on the task %>
 
 						<div class="flexRow" style="justify-content: flex-start; display:none" id="person<%= locals.taskPeople[i].id %>">
 							<div class="button red" onclick="removePerson( '<%= locals.taskPeople[i].id %>' )">Remove</div>
@@ -198,7 +198,7 @@
 				<div class='button type2' onClick="closeTaskEdit()">Cancel</div>
 			</div>
 
-			<div class='button red' style="display: none" id="deleteTaskButton" onclick="deleteTask()">Delete Task</div>
+			<div class='button red' style="display: none" id="deleteTaskButton" onclick="placeFetch( '/', 'DELETE', { id: task.id } )">Delete Task</div>
 			
 		</div>
 
@@ -214,14 +214,5 @@
 	</div>
 
 </body>
-
-<script type="text/javascript">
-
-	function setDefaultStart (){
-		const date = new Date().toLocaleString('en-US', { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
-		document.getElementById("startDateInput").value = new Date(date.split(", ")[0]).toISOString().split("T")[0];
-	}
-	
-</script>
 
 </html>
