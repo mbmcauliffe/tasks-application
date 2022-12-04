@@ -1,3 +1,5 @@
+var refreshInterval;
+
 var task = {
 	// This object is updated by user input before and during its submission by POST
 	id: null,
@@ -138,6 +140,8 @@ function editTask( taskId ){
 
 	// Make the delete task button visible
 	document.getElementById("deleteTaskButton").style.setProperty("display", "block");
+
+	clearInterval( refreshInterval ); // Prevent the page from refreshing while the user is editing a task
 	
 	raisePrompt();
 
@@ -161,7 +165,6 @@ function closeTaskEdit() {
 	for ( i=0; i<task.people.length; i++ ) {
 		// Hide the indicators of people included in the task
 		document.getElementById( "person" + task.people[i] ).style.setProperty("display", "none");
-
 	}
 
 	// Display the indicator that the user is a member of the newly created task
@@ -169,6 +172,9 @@ function closeTaskEdit() {
 
 	// Remove all people from the task but the user
 	task.people = [ task.people[0] ];
+
+	// Restart the refresh timer
+	refreshInterval = setInterval( ()=>{ window.location.replace("/"); }, 900000 );
 
 	closePrompt(true);
 
@@ -214,6 +220,9 @@ function setDefaultStart (){
 	const date = new Date().toLocaleString('en-US', { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
 	document.getElementById("startDateInput").value = new Date(date.split(", ")[0]).toISOString().split("T")[0];
 }
+
+// Refresh every half-hour in order to keep hour numbers correct if not editing a task
+refreshInterval = setInterval( ()=>{ window.location.replace("/"); }, 900000 );
 
 // Clear any cached data from the prompt
 closeTaskEdit();

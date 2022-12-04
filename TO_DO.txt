@@ -3,5 +3,3 @@
 - Remove static secret
 - Add Helmet
 - Set Cookies Secure Attribute
-
-- Add 60 second refresh if not editing
