@@ -124,7 +124,9 @@ async function authorizeToken( req, res, next ){
 		req.headers.user = {
 			id: await existingUser._id,
 			email: await existingUser.email,
-			people: await existingUser.people
+			people: await existingUser.people,
+			pending: await existingUser.pending,
+			invited: await existingUser.invited
 		};
 
 		// Create a token to be sent back to the user browser
@@ -403,8 +405,7 @@ app.delete('/logout', async (req, res) => {
 
 });
 
-const peopleRoute = require("./routes/people");
-app.use("/people", peopleRoute({ User: User }));
+app.use("/people", require("./routes/people"));
 
 app.get('/', async (req, res, next) => {
 

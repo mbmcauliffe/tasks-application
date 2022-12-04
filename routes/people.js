@@ -13,15 +13,31 @@ WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 */
 
+//////////////////////////////// MongoDB ////////////////////////////////
+
+const mongoose = require("mongoose");
+
+// Import Data Models
+const User = require("../models/User");
+
+// Open and Log MongoDB Connection
+mongoose.connect("mongodb://localhost/taskApplication");
+const db = mongoose.connection;
+db.on("error", (error)=>{ console.log("\n!!!!! Mongoose Error !!!!!\n\n" + error + "\n\n!!!!! Mongoose Error !!!!!\n"); });
+db.once("open", ()=>{ console.log("People route connected to MongoDB"); });
+
+//////////////////////////////// Express Routes ////////////////////////////////
+
 const express = require("express");
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
-
-	const user = await User.findOne({ email: req.headers.user.email });
+	// Render the people page with a table containing all open invites and a table containing all accepted invites
 
 	var people = [];
+	const user = req.headers.user;
 
+	// This to lookup and attach full data ( except the password hash ) on each person based on the IDs in the user people array
 	for ( i=0; i<user.people.length; i++ ) {
 
 		const person = await User.findOne({ _id: user.people[i] });
@@ -55,6 +71,7 @@ router.post('/', async (req, res, next) => {
 	const inviteEmail = req.body.email.toLowerCase();
 	const invitedUser = await User.findOne({ email: inviteEmail });
 
+	// Prevent duplicate invites
 	if ( user.invited.indexOf( inviteEmail ) >= 0 ) {
 		return res.status(200).send()
 	}
@@ -64,7 +81,9 @@ router.post('/', async (req, res, next) => {
 	await user.save();
 
 	if ( invitedUser !== null ) {
+		// The invited user may or may not exist at the time of invite. If not, the invite will be imported at the time of user creation in the auth route
 
+		// Prevent duplicate invites
 		if ( invitedUser.pending.indexOf( user.email ) >= 0 ) {
 			return res.status(200).send()
 		}
@@ -80,6 +99,7 @@ router.post('/', async (req, res, next) => {
 });
 
 router.post('/approve', async (req, res) => {
+	// This to approve pending invites received from the passed email address
 
 	const user = await User.findOne({ email: req.headers.user.email});
 	const approvedUser = await User.findOne({ email: req.body.email });
@@ -105,7 +125,8 @@ router.post('/approve', async (req, res) => {
 });
 
 router.delete('/pending', async (req, res) => {
-	
+	// This to bidirectionally remove all records of any invite between any two parties user and passed
+
 	const user = await User.findOne({ email: req.headers.user.email});
 	const deletedUser = await User.findOne({ email: req.body.email });
 
@@ -134,6 +155,7 @@ router.delete('/pending', async (req, res) => {
 });
 
 router.delete('/', async (req, res) => {
+	// This to remove a previously approved connection between two accounts
 
 	const user = await User.findOne({ email: req.headers.user.email});
 	const deletedUser = await User.findOne({ _id: req.body.id });
