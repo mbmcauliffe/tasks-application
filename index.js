@@ -126,7 +126,8 @@ async function authorizeToken( req, res, next ){
 			email: await existingUser.email,
 			people: await existingUser.people,
 			pending: await existingUser.pending,
-			invited: await existingUser.invited
+			invited: await existingUser.invited,
+			isVerified: await existingUser.isVerified
 		};
 
 		// Create a token to be sent back to the user browser
@@ -380,6 +381,32 @@ app.delete('/logout', async (req, res) => {
 
 	// Trigger the Front-End to redirect to its destination
 	res.status(200).send();
+
+});
+
+app.post("/confirm", ( req, res )=>{
+	// Send a user an email redirecting them to a GET route with their unique identifier
+
+	const identifier = crypto.randomBytes(16).toString("HEX");
+
+	const date = new Date();
+
+	emailTokens.push({
+		token: identifier,
+		user: req.headers.user.id,
+		created: date
+	});
+
+	return res.sendStatus(200)
+
+});
+
+app.get("/confirm/:identifier", ( req, res )=>{
+	// Check the url-based single-use identifier, render a different page depending on the success of the check
+
+	
+
+	return res.sendStatus(200)
 
 });
 

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>People | Task Manager</title>
+	<link rel="stylesheet" href="https://global.mbmcauliffe.net/global.css" crossorigin="anonymous">
+	<script type="text/javascript" src='https://global.mbmcauliffe.net/global.js'  crossorigin="anonymous" defer></script>
+	<link rel="icon" type="image/x-icon" href="/img/favicon.png">
+</head>
+
+<script type="text/javascript">
+
+	async function sendEmail() {
+
+		// Place the request
+		const response = await fetch("/confirm", {
+			method: "POST"
+		});
+
+		// Change the message if the server sends status 200
+		if(response.status === 200){
+			document.getElementById("message1").style.setProperty( "display", "none" );
+			document.getElementById("message2").style.setProperty( "display", "block" );
+			return
+		}
+
+		// Status 400 is only sent with an error response, rendered here for the user
+		if ( response.status === 400 ) {
+			const textResponse = await response.text();
+
+			const error = await JSON.parse(textResponse);
+			console.log(error);
+			raiseError(error);
+		}
+
+		return
+
+	}
+
+</script>
+
+<body>
+
+	<header>
+		<div></div>
+		<div class="flexRow">
+			<a class="button type2" href="/" >Tasks</a>
+			<div class="button type2" onclick="logout()">Log Out</div>
+		</div>
+	</header>
+
+	<main style="justify-content: center; align-items: center">
+
+		<div id="message1" style="display: flex; align-items: center;">You must <div class="button" onclick="sendEmail();" style="margin: 0 0.5em">Confirm your Email Address</div> before you can invite others to share tasks with you.</div>
+		<div id="message2" style="display: none">Email Sent: Please use the email from noreply@noreply.mbmcauliffe.com to confirm your address <div class="button" onclick="sendEmail();" style="margin:auto; margin-top: 1em;">Resend Email</div></div>
+
+	</main>
+
+	<footer>Copyright &copy; 2022, Michael B McAuliffe</footer>
+
+	<div id='errorBlock'>
+		<div></div>
+		<div class='errorText'>
+			<div id="errorTitle" class='errorTitle'></div>
+			<div id="errorMessage" class='errorMessage'></div>
+		</div>
+		<div class='deleteSymbol' onclick='dismissError();' style='height:1em; width:1em'></div>
+	</div>
+
+</body>
+
+</html>

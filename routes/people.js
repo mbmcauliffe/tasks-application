@@ -31,6 +31,14 @@ db.once("open", ()=>{ console.log("People route connected to MongoDB"); });
 
 //////////////////////////////// Express Routes ////////////////////////////////
 
+router.use(( req, res )=>{
+
+	if ( req.headers.user.isVerified !== true ){
+		return res.status( 403 ).render( "confirmEmail.ejs" );
+	}
+
+});
+
 router.get('/', async (req, res, next) => {
 	// Render the people page with a table containing all open invites and a table containing all accepted invites
 
