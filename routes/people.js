@@ -13,6 +13,9 @@ WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 */
 
+const express = require("express");
+const router = express.Router();
+
 //////////////////////////////// MongoDB ////////////////////////////////
 
 const mongoose = require("mongoose");
@@ -28,16 +31,13 @@ db.once("open", ()=>{ console.log("People route connected to MongoDB"); });
 
 //////////////////////////////// Express Routes ////////////////////////////////
 
-const express = require("express");
-const router = express.Router();
-
 router.get('/', async (req, res, next) => {
 	// Render the people page with a table containing all open invites and a table containing all accepted invites
 
 	var people = [];
 	const user = req.headers.user;
 
-	// This to lookup and attach full data ( except the password hash ) on each person based on the IDs in the user people array
+	// This to lookup and attach relevant data on each person based on the IDs in the user people array
 	for ( i=0; i<user.people.length; i++ ) {
 
 		const person = await User.findOne({ _id: user.people[i] });
