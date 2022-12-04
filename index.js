@@ -403,7 +403,8 @@ app.delete('/logout', async (req, res) => {
 
 });
 
-//app.use("/people", require("./routes/people"));
+const peopleRoute = require("./routes/people");
+app.use("/people", peopleRoute({ User: User }));
 
 app.get('/', async (req, res, next) => {
 

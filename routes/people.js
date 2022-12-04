@@ -16,7 +16,7 @@ WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 const express = require("express");
 const router = express.Router();
 
-router.get('/people', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
 
 	const user = await User.findOne({ email: req.headers.user.email });
 
@@ -42,7 +42,7 @@ router.get('/people', async (req, res, next) => {
 
 });
 
-router.post('/people', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
 
 	if ( req.headers.user.email == req.body.email ) {
 		return res.status(400).send(JSON.stringify({
@@ -79,7 +79,7 @@ router.post('/people', async (req, res, next) => {
 
 });
 
-router.post('/people/approve', async (req, res) => {
+router.post('/approve', async (req, res) => {
 
 	const user = await User.findOne({ email: req.headers.user.email});
 	const approvedUser = await User.findOne({ email: req.body.email });
@@ -104,7 +104,7 @@ router.post('/people/approve', async (req, res) => {
 
 });
 
-router.delete('/people/pending', async (req, res) => {
+router.delete('/pending', async (req, res) => {
 	
 	const user = await User.findOne({ email: req.headers.user.email});
 	const deletedUser = await User.findOne({ email: req.body.email });
@@ -133,7 +133,7 @@ router.delete('/people/pending', async (req, res) => {
 
 });
 
-router.delete('/people', async (req, res) => {
+router.delete('/', async (req, res) => {
 
 	const user = await User.findOne({ email: req.headers.user.email});
 	const deletedUser = await User.findOne({ _id: req.body.id });
