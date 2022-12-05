@@ -15,6 +15,13 @@ WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 const express = require("express");
 const router = express.Router();
+const nodemailer = require("nodemailer");
+
+// Server Configuration
+require('dotenv').config();
+const websiteUrl = process.env.WEBSITE_URL;
+const sendgridApiKey = process.env.SENDGRID_API_KEY;
+const noReplyAddress = process.env.NO_REPLY_ADDRESS;
 
 //////////////////////////////// MongoDB ////////////////////////////////
 
@@ -29,13 +36,37 @@ const db = mongoose.connection;
 db.on("error", (error)=>{ console.log("\n!!!!! Mongoose Error !!!!!\n\n" + error + "\n\n!!!!! Mongoose Error !!!!!\n"); });
 db.once("open", ()=>{ console.log("People route connected to MongoDB"); });
 
+//////////////////////////////// Server Functions ////////////////////////////////
+
+async function sendMail( recipient, subject, htmlBody ) {
+
+	const transporter = nodemailer.createTransport({
+	  host: "smtp.sendgrid.net",
+	  port: 465,
+	  secure: true, // true for 465, false for other ports
+	  auth: {
+	    user: "apikey",
+	    pass: sendgridApiKey
+	  },
+	});
+
+	const info = await transporter.sendMail({
+	  from: '"No Reply" <' + noReplyAddress + '>', // sender address
+	  to: recipient,
+	  subject: subject,
+	  html: htmlBody
+	});
+}
+
 //////////////////////////////// Express Routes ////////////////////////////////
 
-router.use(( req, res )=>{
+router.use(( req, res, next )=>{
 
 	if ( req.headers.user.isVerified !== true ){
 		return res.status( 403 ).render( "confirmEmail.ejs" );
 	}
+
+	next();
 
 });
 
@@ -67,6 +98,7 @@ router.get('/', async (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
+	// Invite a user to collaborate on tasks
 
 	if ( req.headers.user.email == req.body.email ) {
 		return res.status(400).send(JSON.stringify({
@@ -97,8 +129,10 @@ router.post('/', async (req, res, next) => {
 		}
 
 		await invitedUser.pending.push( user.email );
-
 		await invitedUser.save();
+
+		const htmlBody = user.firstName + " " + user.lastName + " at " + user.email + " has invited you to collaborate on tasks at MBMcAuliffe Tasks. You can accept their invitation at <a clicktracking='off' href=https://" + websiteUrl + "/people target='_blank'>https://" + websiteUrl + "/people</a>";
+		sendMail( invitedUser.email, user.firstName + " " + user.lastName + " has invited you to share tasks.", htmlBody );
 
 	}
 

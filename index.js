@@ -21,6 +21,10 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const logger = require("./node_modules/mbmcauliffe-utilities/src/logger");
 const mongoSanitize = require('express-mongo-sanitize');
+const nodemailer = require("nodemailer");
+const compression = require("compression");
+const helmet = require("helmet");
+const https = require("https");
 
 // Auth Modules
 const jwt = require("jsonwebtoken");
@@ -28,7 +32,11 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 
 // Server Configuration
+require('dotenv').config();
 const selfPort = 3000;
+const websiteUrl = process.env.WEBSITE_URL;
+const sendgridApiKey = process.env.SENDGRID_API_KEY;
+const noReplyAddress = process.env.NO_REPLY_ADDRESS;
 const tokenSecret = "cheese" //crypto.randomBytes(128).toString("HEX");
 
 //////////////////////////////// Rate Limiter ////////////////////////////////
@@ -204,6 +212,37 @@ async function importPending ( email ) {
 
 }
 
+function redirectHTTP(req, res, next){
+
+  if (!req.secure) {
+
+    return res.redirect("https://" + websiteUrl);
+
+  }
+
+  next();
+
+}
+
+async function sendMail( recipient, subject, htmlBody ) {
+	const transporter = nodemailer.createTransport({
+	  host: "smtp.sendgrid.net",
+	  port: 465,
+	  secure: true, // true for 465, false for other ports
+	  auth: {
+	    user: "apikey",
+	    pass: sendgridApiKey
+	  },
+	});
+
+	const info = await transporter.sendMail({
+	  from: '"No Reply" <' + noReplyAddress + '>', // sender address
+	  to: recipient,
+	  subject: subject,
+	  html: htmlBody
+	});
+}
+
 //////////////////////////////// Middleware ////////////////////////////////
 
 // Reference Configuration
@@ -218,9 +257,14 @@ app.use(logger);
 app.use(convertToken);
 
 // Application Security
+//app.use(redirectHTTP);
 app.disable('x-powered-by');
 app.use(mongoSanitize());
 app.use(limiter);
+//app.use(compression());
+//app.use(helmet({
+// contentSecurityPolicy: false,
+//}));
 
 //////////////////////////////// Express Routes ////////////////////////////////
 
@@ -368,7 +412,65 @@ app.get('/', async (req, res, next) => {
 
 });
 
+app.get("/confirm/:identifier", async ( req, res )=>{
+	// Check the url-based single-use identifier, render a different page depending on the success of the check
+
+	const date = new Date();
+	const timeNow = date.getTime();
+	console.log( emailTokens );
+
+	for ( i=0; i<emailTokens.length; i++ ) {
+
+		console.log( emailTokens[i] );
+
+		if ( emailTokens[i].created + 259200000 < timeNow ) {
+			emailTokens.splice( i, 1 );
+			continue
+		}
+
+		if ( req.params.identifier === emailTokens[i].token ) {
+
+			const user = await User.findOne({ _id: emailTokens[i].user });
+			user.isVerified = true;
+			user.save();
+
+			emailTokens.splice( i, 1 );
+
+			return res.render( "message.ejs", { message: "Your email address has been confirmed." } );
+			
+		}
+
+	}
+
+	return res.render( "message.ejs", { message: "Something went wrong. Please request a new confirmation email." } );
+
+});
+
 app.use(authorizeToken);
+
+var emailTokens = [];
+
+app.post("/confirm", async ( req, res )=>{
+	// Send the user an email redirecting them to a GET route with their unique identifier
+
+	const identifier = crypto.randomBytes(16).toString("HEX");
+
+	const date = new Date();
+
+	emailTokens.push({
+		token: identifier,
+		user: req.headers.user.id,
+		created: date.getTime()
+	});
+
+	identifierURL = "https://" + websiteUrl + "/confirm/" + identifier;
+	const htmlBody = "Howdy,<br><br>Please use the following link to confirm your email address with MBMcAuliffe Tasks: <a clicktracking='off' href=" + identifierURL + " target='_blank'>" + identifierURL + "</a><br><br>Thank you";
+
+	sendMail( req.headers.user.email, "Confirm your email with MBMcAuliffe Tasks", htmlBody );
+
+	return res.sendStatus(200)
+
+});
 
 app.delete('/logout', async (req, res) => {
 
@@ -384,35 +486,22 @@ app.delete('/logout', async (req, res) => {
 
 });
 
-app.post("/confirm", ( req, res )=>{
-	// Send a user an email redirecting them to a GET route with their unique identifier
-
-	const identifier = crypto.randomBytes(16).toString("HEX");
-
-	const date = new Date();
-
-	emailTokens.push({
-		token: identifier,
-		user: req.headers.user.id,
-		created: date
-	});
-
-	return res.sendStatus(200)
-
-});
-
-app.get("/confirm/:identifier", ( req, res )=>{
-	// Check the url-based single-use identifier, render a different page depending on the success of the check
-
-	
-
-	return res.sendStatus(200)
-
-});
-
 app.use("/people", require("./routes/people"));
 app.use("/", require("./routes/tasks"));
 
 //////////////////////////////// Server Initialization ////////////////////////////////
 
-app.listen(selfPort, ()=> console.log('Tasks-Application running at ' + selfPort));
+app.listen(selfPort, ()=> console.log('Tasks-Application running in development mode at ' + selfPort));
+
+/*
+const httpsServer = https.createServer({
+  key: fs.readFileSync('/etc/letsencrypt/live/' + websiteUrl + '/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/' + websiteUrl + '/fullchain.pem'),
+}, app);
+
+httpsServer.listen(443);
+console.log("Listening 443");
+
+app.listen(80);
+console.log("Listening 80");
+*/

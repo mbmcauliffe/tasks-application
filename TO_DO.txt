@@ -1,5 +1,5 @@
-- User email verification
-
 - Remove static secret
 - Add Helmet
 - Set Cookies Secure Attribute
+
+- Move placefetches to global.js

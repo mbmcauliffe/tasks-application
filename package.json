@@ -23,16 +23,20 @@
   },
   "homepage": "https://github.com/mbmcauliffe/tasks-application#readme",
   "dependencies": {
-    "nodemon": "latest",
-    "express": "latest",
-    "body-parser": "latest",
-    "cookie-parser": "latest",
-    "express-mongo-sanitize": "latest",
-    "jsonwebtoken": "latest",
     "bcrypt": "latest",
+    "body-parser": "latest",
+    "compression": "^1.7.4",
+    "cookie-parser": "latest",
+    "dotenv": "^16.0.3",
+    "ejs": "latest",
+    "express": "latest",
+    "express-mongo-sanitize": "latest",
     "express-rate-limit": "latest",
-    "mongoose": "latest",
+    "helmet": "^6.0.1",
+    "jsonwebtoken": "latest",
     "mbmcauliffe-utilities": "https://github.com/mbmcauliffe-web-core/utilities.git",
-    "ejs": "latest"
+    "mongoose": "latest",
+    "nodemailer": "^6.8.0",
+    "nodemon": "latest"
   }
 }
