@@ -33,11 +33,22 @@ const bcrypt = require("bcrypt");
 
 // Server Configuration
 require('dotenv').config();
-const selfPort = 3000;
+const devPort = 3000;
+const serverMode = process.env.SERVER_MODE;
 const websiteUrl = process.env.WEBSITE_URL;
 const sendgridApiKey = process.env.SENDGRID_API_KEY;
 const noReplyAddress = process.env.NO_REPLY_ADDRESS;
-const tokenSecret = "cheese" //crypto.randomBytes(128).toString("HEX");
+const maintainerEmail = process.env.MAINTAINER_EMAIL;
+var tokenSecret;
+var cookieOptions;
+if ( serverMode === "dev" ) {
+	tokenSecret = "dev";
+	cookieOptions = { httpOnly:true, sameSite: "Strict", secure:true, maxAge:604800000 /* Miliseconds */ }
+} else {
+	tokenSecret = crypto.randomBytes(128).toString("HEX");
+	cookieOptions = { httpOnly:true, sameSite: "Strict", secure:false, maxAge:604800000 /* Miliseconds */ }
+}
+
 
 //////////////////////////////// Rate Limiter ////////////////////////////////
 
@@ -114,7 +125,7 @@ async function authorizeToken( req, res, next ){
 			res.set("authorization", "Bearer " + "Rejected Token");
 
 			// Invalidate the user's authorization cookie
-			res.clearCookie('authorization', { httpOnly:true, /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
+			res.clearCookie('authorization', cookieOptions);
 
 			return res.status(401).redirect("/login");
 
@@ -144,7 +155,7 @@ async function authorizeToken( req, res, next ){
 		// Send the user's token as both and authorization header and as a cookie
 		res.set("Access-Control-Expose-Headers", "authorization");
 		res.set("authorization", "Bearer " + userToken);
-		res.cookie('authorization', "Bearer " + userToken, { httpOnly:true, sameSite: "Strict", /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
+		res.cookie('authorization', "Bearer " + userToken, cookieOptions);
 
 		next();
 
@@ -257,14 +268,17 @@ app.use(logger);
 app.use(convertToken);
 
 // Application Security
-//app.use(redirectHTTP);
 app.disable('x-powered-by');
 app.use(mongoSanitize());
 app.use(limiter);
-//app.use(compression());
-//app.use(helmet({
-// contentSecurityPolicy: false,
-//}));
+
+if (serverMode !== "dev") {
+	app.use(redirectHTTP);
+	app.use(compression());
+	app.use(helmet({
+		contentSecurityPolicy: false,
+	}));
+}
 
 //////////////////////////////// Express Routes ////////////////////////////////
 
@@ -324,7 +338,7 @@ app.post('/login', async (req, res) => {
 	// Send the user's token as both and authorization header and as a cookie
 	res.set("Access-Control-Expose-Headers", "authorization");
 	res.set("authorization", "Bearer " + userToken);
-	res.cookie('authorization', "Bearer " + userToken, { httpOnly:true, sameSite: "Strict", /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
+	res.cookie('authorization', "Bearer " + userToken, cookieOptions);
 	
 	// Trigger the Front-End to redirect to its destination
 	res.status(200).send();
@@ -479,7 +493,7 @@ app.delete('/logout', async (req, res) => {
 	res.set("authorization", "Bearer " + "Logged-Out");
 
 	// Invalidate the user's authorization cookie
-	res.clearCookie('authorization', { httpOnly:true, /*dev secure:true,*/ maxAge:604800000 /* Miliseconds */ });
+	res.clearCookie('authorization', cookieOptions);
 
 	// Trigger the Front-End to redirect to its destination
 	res.status(200).send();
@@ -491,17 +505,19 @@ app.use("/", require("./routes/tasks"));
 
 //////////////////////////////// Server Initialization ////////////////////////////////
 
-app.listen(selfPort, ()=> console.log('Tasks-Application running in development mode at ' + selfPort));
+if ( serverMode === "dev" ) {
 
-/*
-const httpsServer = https.createServer({
-  key: fs.readFileSync('/etc/letsencrypt/live/' + websiteUrl + '/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/' + websiteUrl + '/fullchain.pem'),
-}, app);
+app.listen(devPort, ()=> console.log('Tasks-Application running in development mode at ' + devPort));
 
-httpsServer.listen(443);
-console.log("Listening 443");
+} else {
 
-app.listen(80);
-console.log("Listening 80");
-*/
+require("greenlock-express")
+ .init({
+	packageRoot: __dirname,
+	configDir: "./greenlock.d",
+	maintainerEmail: maintainerEmail,
+	cluster: false
+})
+	// Serves on 80 and 443
+	.serve(app);
+}

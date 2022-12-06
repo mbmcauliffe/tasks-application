@@ -1,5 +1,3 @@
-- Remove static secret
-- Add Helmet
-- Set Cookies Secure Attribute
-
 - Move placefetches to global.js
+
+- Allow Password Changes
