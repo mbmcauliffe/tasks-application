@@ -25,18 +25,18 @@
   "dependencies": {
     "bcrypt": "latest",
     "body-parser": "latest",
-    "compression": "^1.7.4",
+    "compression": "latest",
     "cookie-parser": "latest",
-    "dotenv": "^16.0.3",
+    "dotenv": "latest",
     "ejs": "latest",
     "express": "latest",
     "express-mongo-sanitize": "latest",
     "express-rate-limit": "latest",
-    "helmet": "^6.0.1",
+    "helmet": "latest",
     "jsonwebtoken": "latest",
     "mbmcauliffe-utilities": "https://github.com/mbmcauliffe-web-core/utilities.git",
     "mongoose": "latest",
-    "nodemailer": "^6.8.0",
+    "nodemailer": "latest",
     "nodemon": "latest"
   }
 }
