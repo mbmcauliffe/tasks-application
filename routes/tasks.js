@@ -15,6 +15,7 @@ WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 const express = require("express");
 const router = express.Router();
+const crypto = require("crypto");
 
 //////////////////////////////// MongoDB ////////////////////////////////
 
