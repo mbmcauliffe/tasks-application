@@ -20,6 +20,7 @@ const crypto = require("crypto");
 //////////////////////////////// MongoDB ////////////////////////////////
 
 const mongoose = require("mongoose");
+mongoose.set('strictQuery', true);
 
 // Import Data Models
 const User = require("../models/User");

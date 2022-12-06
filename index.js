@@ -15,6 +15,7 @@ WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 const express = require("express");
 const app = express();
+const fs = require("fs");
 
 // Add Middleware
 const bodyParser = require("body-parser");
@@ -76,6 +77,7 @@ const loginLimiter = rateLimit({
 //////////////////////////////// MongoDB ////////////////////////////////
 
 const mongoose = require("mongoose");
+mongoose.set('strictQuery', true);
 
 // Import Data Models
 const User = require("./models/User");
@@ -252,6 +254,10 @@ async function sendMail( recipient, subject, htmlBody ) {
 	  subject: subject,
 	  html: htmlBody
 	});
+
+	console.log("SMTP Response:\n");
+	console.log( info );
+
 }
 
 //////////////////////////////// Middleware ////////////////////////////////

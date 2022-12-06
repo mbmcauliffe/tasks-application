@@ -26,6 +26,7 @@ const noReplyAddress = process.env.NO_REPLY_ADDRESS;
 //////////////////////////////// MongoDB ////////////////////////////////
 
 const mongoose = require("mongoose");
+mongoose.set('strictQuery', true);
 
 // Import Data Models
 const User = require("../models/User");
@@ -56,6 +57,9 @@ async function sendMail( recipient, subject, htmlBody ) {
 	  subject: subject,
 	  html: htmlBody
 	});
+
+	console.log("SMTP Response:\n" + info);
+	
 }
 
 //////////////////////////////// Express Routes ////////////////////////////////
