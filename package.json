@@ -32,7 +32,6 @@
     "express": "latest",
     "express-mongo-sanitize": "latest",
     "express-rate-limit": "latest",
-    "greenlock-express": "latest",
     "helmet": "latest",
     "jsonwebtoken": "latest",
     "mbmcauliffe-utilities": "https://github.com/mbmcauliffe-web-core/utilities.git",

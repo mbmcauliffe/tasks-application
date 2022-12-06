@@ -511,13 +511,15 @@ app.listen(devPort, ()=> console.log('Tasks-Application running in development m
 
 } else {
 
-require("greenlock-express")
- .init({
-	packageRoot: __dirname,
-	configDir: "./greenlock.d",
-	maintainerEmail: maintainerEmail,
-	cluster: false
-})
-	// Serves on 80 and 443
-	.serve(app);
+	const httpsServer = https.createServer({
+	  key: fs.readFileSync('/etc/letsencrypt/live/' + websiteUrl + '/privkey.pem'),
+	  cert: fs.readFileSync('/etc/letsencrypt/live/' + websiteUrl + '/fullchain.pem'),
+	}, app);
+
+	httpsServer.listen(443);
+	console.log("Listening 443");
+
+	app.listen(80);
+	console.log("Listening 80");
+
 }
