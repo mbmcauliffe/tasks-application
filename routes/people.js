@@ -20,7 +20,8 @@ const nodemailer = require("nodemailer");
 // Server Configuration
 require('dotenv').config();
 const websiteUrl = process.env.WEBSITE_URL;
-const sendgridApiKey = process.env.SENDGRID_API_KEY;
+const mailJetApiKey= process.env.MAILJET_API_KEY;
+const mailJetSecretKey= process.env.MAILJET_SECRET_KEY;
 const noReplyAddress = process.env.NO_REPLY_ADDRESS;
 
 //////////////////////////////// MongoDB ////////////////////////////////
@@ -40,26 +41,9 @@ db.once("open", ()=>{ console.log("People route connected to MongoDB"); });
 //////////////////////////////// Server Functions ////////////////////////////////
 
 async function sendMail( recipient, subject, htmlBody ) {
-
-	const transporter = nodemailer.createTransport({
-	  host: "smtp.sendgrid.net",
-	  port: 465,
-	  secure: true, // true for 465, false for other ports
-	  auth: {
-	    user: "apikey",
-	    pass: sendgridApiKey
-	  },
-	});
-
-	const info = await transporter.sendMail({
-	  from: '"No Reply" <' + noReplyAddress + '>', // sender address
-	  to: recipient,
-	  subject: subject,
-	  html: htmlBody
-	});
-
-	console.log("SMTP Response:\n" + info);
 	
+	mailjet( mailJetApiKey, mailjetSecretKey, noReplyAddress, "No Reply", recipient, "Tasks User", subject, htmlBody );
+
 }
 
 //////////////////////////////// Express Routes ////////////////////////////////
