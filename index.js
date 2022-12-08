@@ -21,6 +21,7 @@ const fs = require("fs");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const logger = require("./node_modules/mbmcauliffe-utilities/src/logger");
+const mailjet = require("./node_modules/mbmcauliffe-utilities/src/mailjet");
 const mongoSanitize = require('express-mongo-sanitize');
 const nodemailer = require("nodemailer");
 const compression = require("compression");
@@ -37,7 +38,8 @@ require('dotenv').config();
 const devPort = 3000;
 const serverMode = process.env.SERVER_MODE;
 const websiteUrl = process.env.WEBSITE_URL;
-const sendgridApiKey = process.env.SENDGRID_API_KEY;
+const mailJetApiKey= process.env.MAILJET_API_KEY;
+const mailJetSecretKey= process.env.MAILJET_SECRET_KEY;
 const noReplyAddress = process.env.NO_REPLY_ADDRESS;
 const maintainerEmail = process.env.MAINTAINER_EMAIL;
 var tokenSecret;
@@ -238,25 +240,8 @@ function redirectHTTP(req, res, next){
 }
 
 async function sendMail( recipient, subject, htmlBody ) {
-	const transporter = nodemailer.createTransport({
-	  host: "smtp.sendgrid.net",
-	  port: 465,
-	  secure: true, // true for 465, false for other ports
-	  auth: {
-	    user: "apikey",
-	    pass: sendgridApiKey
-	  },
-	});
-
-	const info = await transporter.sendMail({
-	  from: '"No Reply" <' + noReplyAddress + '>', // sender address
-	  to: recipient,
-	  subject: subject,
-	  html: htmlBody
-	});
-
-	console.log("SMTP Response:\n");
-	console.log( info );
+	
+	mailjet( mailJetApiKey, mailjetSecretKey, noReplyAddress, "No Reply", recipient, "Tasks User", subject, htmlBody );
 
 }
 

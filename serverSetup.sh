@@ -26,8 +26,8 @@ npx greenlock add --subject $domain --altnames $domain
 sudo crontab -l > cronLines
 
 # Write to Crontab
-sudo echo "@reboot apt update && apt upgrade -y && apt autoremove -y"
-sudo echo "@reboot systemctl start mongod"
+sudo echo "@reboot apt update && apt upgrade -y && apt autoremove -y" >> cronLines
+sudo echo "@reboot systemctl start mongod" >> cronLines
 sudo echo "@reboot nodejs /root/tasks-application/index.js" >> cronLines
 
 # Save Crontab
