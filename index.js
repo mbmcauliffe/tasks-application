@@ -37,8 +37,8 @@ require('dotenv').config();
 const devPort = 3000;
 const serverMode = process.env.SERVER_MODE;
 const websiteUrl = process.env.WEBSITE_URL;
-const mailJetApiKey= process.env.MAILJET_API_KEY;
-const mailJetSecretKey= process.env.MAILJET_SECRET_KEY;
+const mailjetApiKey= process.env.MAILJET_API_KEY;
+const mailjetSecretKey= process.env.MAILJET_SECRET_KEY;
 const noReplyAddress = process.env.NO_REPLY_ADDRESS;
 const maintainerEmail = process.env.MAINTAINER_EMAIL;
 var tokenSecret;
@@ -240,7 +240,7 @@ function redirectHTTP(req, res, next){
 
 async function sendMail( recipient, subject, htmlBody ) {
 	
-	mailjet( mailJetApiKey, mailjetSecretKey, noReplyAddress, websiteUrl, recipient, subject, htmlBody );
+	mailjet( mailjetApiKey, mailjetSecretKey, noReplyAddress, websiteUrl, recipient, subject, htmlBody );
 
 }
 
