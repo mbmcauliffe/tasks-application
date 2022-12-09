@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1600.0002"
+   height="700"
+   viewBox="0 0 423.33339 185.20833"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     fit-margin-top="50"
+     fit-margin-left="50"
+     fit-margin-right="50"
+     fit-margin-bottom="50"
+     lock-margins="true"
+     units="px"
+     inkscape:zoom="0.733172"
+     inkscape:cx="953.39157"
+     inkscape:cy="313.02341"
+     inkscape:window-width="1920"
+     inkscape:window-height="1012"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     height="700px" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(13.229167,-51.848049)">
+    <text
+       xml:space="preserve"
+       style="font-weight:bold;font-size:144.645px;line-height:1.25;font-family:'Open Sans';-inkscape-font-specification:'Open Sans Bold';fill:#003052;fill-opacity:1;stroke-width:3.61612"
+       x="-2.8957253"
+       y="175.08112"
+       id="text2409"
+       transform="scale(1.0016534,0.99834934)"><tspan
+         sodipodi:role="line"
+         id="tspan2407"
+         style="fill:#003052;fill-opacity:1;stroke-width:3.61612"
+         x="-2.8957253"
+         y="175.08112">Tasks</tspan></text>
+    <rect
+       style="fill:#003052;fill-opacity:1;stroke-width:0.244293"
+       id="rect14854"
+       width="396.875"
+       height="5.4538713"
+       x="1.4210855e-14"
+       y="178.79677" />
+    <text
+       xml:space="preserve"
+       style="font-weight:bold;font-size:48.3752px;line-height:1.25;font-family:'Open Sans';-inkscape-font-specification:'Open Sans Bold';fill:#003052;fill-opacity:1;stroke-width:1.20938"
+       x="-3.7793124"
+       y="223.99756"
+       id="text15938"><tspan
+         sodipodi:role="line"
+         id="tspan15936"
+         style="fill:#003052;fill-opacity:1;stroke-width:1.20938"
+         x="-3.7793124"
+         y="223.99756">mbmcauliffe.net</tspan></text>
+  </g>
+</svg>
