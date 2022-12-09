@@ -23,7 +23,6 @@ const cookieParser = require("cookie-parser");
 const logger = require("./node_modules/mbmcauliffe-utilities/src/logger");
 const mailjet = require("./node_modules/mbmcauliffe-utilities/src/mailjet");
 const mongoSanitize = require('express-mongo-sanitize');
-const nodemailer = require("nodemailer");
 const compression = require("compression");
 const helmet = require("helmet");
 const https = require("https");
@@ -241,7 +240,7 @@ function redirectHTTP(req, res, next){
 
 async function sendMail( recipient, subject, htmlBody ) {
 	
-	mailjet( mailJetApiKey, mailjetSecretKey, noReplyAddress, "No Reply", recipient, "Tasks User", subject, htmlBody );
+	mailjet( mailJetApiKey, mailjetSecretKey, noReplyAddress, websiteUrl, recipient, subject, htmlBody );
 
 }
 
@@ -422,11 +421,8 @@ app.get("/confirm/:identifier", async ( req, res )=>{
 
 	const date = new Date();
 	const timeNow = date.getTime();
-	console.log( emailTokens );
 
 	for ( i=0; i<emailTokens.length; i++ ) {
-
-		console.log( emailTokens[i] );
 
 		if ( emailTokens[i].created + 259200000 < timeNow ) {
 			emailTokens.splice( i, 1 );
@@ -469,9 +465,9 @@ app.post("/confirm", async ( req, res )=>{
 	});
 
 	identifierURL = "https://" + websiteUrl + "/confirm/" + identifier;
-	const htmlBody = "Howdy,<br><br>Please use the following link to confirm your email address with MBMcAuliffe Tasks: <a clicktracking='off' href=" + identifierURL + " target='_blank'>" + identifierURL + "</a><br><br>Thank you";
+	const htmlBody = "Howdy,<br><br>Please use the following link to confirm your email address with " + websiteUrl + ": <a clicktracking='off' href=" + identifierURL + " target='_blank'>" + identifierURL + "</a><br><br>Thank you";
 
-	sendMail( req.headers.user.email, "Confirm your email with MBMcAuliffe Tasks", htmlBody );
+	sendMail( req.headers.user.email, "Confirm your email with " + websiteUrl, htmlBody );
 
 	return res.sendStatus(200)
 

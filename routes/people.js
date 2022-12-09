@@ -15,13 +15,13 @@ WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
+const mailjet = require("../node_modules/mbmcauliffe-utilities/src/mailjet");
 
 // Server Configuration
 require('dotenv').config();
 const websiteUrl = process.env.WEBSITE_URL;
-const mailJetApiKey= process.env.MAILJET_API_KEY;
-const mailJetSecretKey= process.env.MAILJET_SECRET_KEY;
+const mailjetApiKey= process.env.MAILJET_API_KEY;
+const mailjetSecretKey= process.env.MAILJET_SECRET_KEY;
 const noReplyAddress = process.env.NO_REPLY_ADDRESS;
 
 //////////////////////////////// MongoDB ////////////////////////////////
@@ -42,7 +42,7 @@ db.once("open", ()=>{ console.log("People route connected to MongoDB"); });
 
 async function sendMail( recipient, subject, htmlBody ) {
 	
-	mailjet( mailJetApiKey, mailjetSecretKey, noReplyAddress, "No Reply", recipient, "Tasks User", subject, htmlBody );
+	mailjet( mailjetApiKey, mailjetSecretKey, noReplyAddress, websiteUrl, recipient, subject, htmlBody );
 
 }
 
@@ -119,7 +119,7 @@ router.post('/', async (req, res, next) => {
 		await invitedUser.pending.push( user.email );
 		await invitedUser.save();
 
-		const htmlBody = user.firstName + " " + user.lastName + " at " + user.email + " has invited you to collaborate on tasks at MBMcAuliffe Tasks. You can accept their invitation at <a clicktracking='off' href=https://" + websiteUrl + "/people target='_blank'>https://" + websiteUrl + "/people</a>";
+		const htmlBody = user.firstName + " " + user.lastName + " at " + user.email + " has invited you to collaborate on tasks at " + websiteUrl + ". You can accept their invitation at <a clicktracking='off' href=https://" + websiteUrl + "/people target='_blank'>https://" + websiteUrl + "/people</a>";
 		sendMail( invitedUser.email, user.firstName + " " + user.lastName + " has invited you to share tasks.", htmlBody );
 
 	}
