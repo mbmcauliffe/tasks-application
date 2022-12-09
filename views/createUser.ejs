@@ -16,7 +16,7 @@
 		if(document.getElementById("passwordInput").value != document.getElementById("confirmInput").value){
 
 			raiseError({
-				title: "Invalid Entry",
+				title: "Invalid",
 				message: "Your passwords don't match."
 			});
 
@@ -25,40 +25,25 @@
 		}
 
 		const payload = {
-			firstName: document.getElementById("firstNameInput").value,
-			lastName: document.getElementById("lastNameInput").value,
-			email: document.getElementById("emailInput").value,
-			password: document.getElementById("passwordInput").value,
+			firstName: await document.getElementById("firstNameInput").value,
+			lastName: await document.getElementById("lastNameInput").value,
+			email: await document.getElementById("emailInput").value,
+			password: await document.getElementById("passwordInput").value,
 		}
 
-		const response = await fetch('/create', {
-	      method: 'POST',
-	      headers: {
-	        'Content-Type': 'application/json'
-	      },
-	      body: JSON.stringify(payload),
-	    });
-
-	    if(response.status === 200){
-
-	    	window.location.replace("/login");
-
-	    	return
-	    }
-
-	    if ( response.status === 400 ) {
-	    	const textResponse = await response.text();
-
-	    	const error = await JSON.parse(textResponse);
-	    	console.log(error);
-	    	raiseError(error);
-	    }
+		placeFetch( '/create', 'POST', payload, ()=>{ window.location.replace("/login"); } );
 
 	}
 
 </script>
 
 <body>
+	<script>0</script> <!-- Firefox Bug Fix -->
+
+	<header>
+		<a href="/" style="background-image: url('/img/logo.svg');height:2em;width:4.57em;background-size: cover;"></a>
+		<div></div>
+	</header>
 
 	<main></main>
 

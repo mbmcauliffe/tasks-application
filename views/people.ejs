@@ -11,9 +11,10 @@
 </head>
 
 <body>
+	<script>0</script> <!-- Firefox Bug Fix -->
 
 	<header>
-		<div></div>
+		<a href="/" style="background-image: url('/img/logo.svg');height:2em;width:4.57em;background-size: cover;"></a>
 		<div class="flexRow">
 			<a class="button type2" href="/" >Tasks</a>
 			<div class="button type2" onclick="logout()">Log Out</div>
@@ -72,6 +73,8 @@
 
 		<% } %>
 
+		<% if ( locals.people.length != 0 ) { // Display the approved table if there are any approved people %>
+
 		<div class="tableWrapper">
 			<table>
 
@@ -101,6 +104,8 @@
 				
 			</table>
 		</div>
+
+		<% } %>
 
 	</main>
 

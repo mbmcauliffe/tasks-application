@@ -130,7 +130,7 @@ async function authorizeToken( req, res, next ){
 			// Invalidate the user's authorization cookie
 			res.clearCookie('authorization', cookieOptions);
 
-			return res.status(401).redirect("/login");
+			return res.status(401).send();
 
 		}
 
@@ -142,6 +142,10 @@ async function authorizeToken( req, res, next ){
 			return res.status(403).redirect("/login");
 		}
 
+	if ( existingUser.isVerified !== true && req.url !== "/verify" && req.url !== "/logout" ){
+		return res.status( 403 ).render( "verifyEmail.ejs" );
+	}
+
 		// Attach the user's information to be used later in the application
 		req.headers.user = {
 			id: await existingUser._id,
@@ -151,6 +155,10 @@ async function authorizeToken( req, res, next ){
 			invited: await existingUser.invited,
 			isVerified: await existingUser.isVerified
 		};
+
+	if ( existingUser.isVerified === true && req.url === "/verify" ){
+		return res.redirect('/');
+	}
 
 		// Create a token to be sent back to the user browser
 		const userToken = jwt.sign({ email: existingUser.email }, tokenSecret, {expiresIn: '604800s'});
@@ -399,6 +407,14 @@ app.post('/create', validateEmail, async (req, res) => {
 	// Save the new user
 	user.save();
 
+	// Create a token to be sent back to the user browser
+		const userToken = jwt.sign({ email: user.email }, tokenSecret, {expiresIn: '604800s'});
+
+		// Send the user's token as both and authorization header and as a cookie
+		res.set("Access-Control-Expose-Headers", "authorization");
+		res.set("authorization", "Bearer " + userToken);
+		res.cookie('authorization', "Bearer " + userToken, cookieOptions);
+
 	// Trigger the Front-End to redirect to its destination
 	return res.status(200).send();
 
@@ -416,7 +432,7 @@ app.get('/', async (req, res, next) => {
 
 });
 
-app.get("/confirm/:identifier", async ( req, res )=>{
+app.get("/verify/:identifier", async ( req, res )=>{
 	// Check the url-based single-use identifier, render a different page depending on the success of the check
 
 	const date = new Date();
@@ -437,13 +453,13 @@ app.get("/confirm/:identifier", async ( req, res )=>{
 
 			emailTokens.splice( i, 1 );
 
-			return res.render( "message.ejs", { message: "Your email address has been confirmed." } );
+			return res.render( "emailVerified.ejs" );
 			
 		}
 
 	}
 
-	return res.render( "message.ejs", { message: "Something went wrong. Please request a new confirmation email." } );
+	return res.render( "verifyEmail.ejs" );
 
 });
 
@@ -451,7 +467,7 @@ app.use(authorizeToken);
 
 var emailTokens = [];
 
-app.post("/confirm", async ( req, res )=>{
+app.post("/verify", async ( req, res )=>{
 	// Send the user an email redirecting them to a GET route with their unique identifier
 
 	const identifier = crypto.randomBytes(16).toString("HEX");
@@ -464,10 +480,10 @@ app.post("/confirm", async ( req, res )=>{
 		created: date.getTime()
 	});
 
-	identifierURL = "https://" + websiteUrl + "/confirm/" + identifier;
-	const htmlBody = "Howdy,<br><br>Please use the following link to confirm your email address with " + websiteUrl + ": <a clicktracking='off' href=" + identifierURL + " target='_blank'>" + identifierURL + "</a><br><br>Thank you";
+	identifierURL = "https://" + websiteUrl + "/verify/" + identifier;
+	const htmlBody = "Howdy,<br><br>Please use the following link to verify your email address with Tasks:<br><br><a clicktracking='off' href=" + identifierURL + " target='_blank' style='text-decoration: none;	display: block;background: hsl(205, 100%, 16%);width: max-content;height: 1em;padding: 0.1em 0.5em 0.1em 0.5em;margin: 0.25em 1em 0.25em 0em;color: white;line-height: 1em;cursor: pointer;border:0.1em solid white' >Verify Email</a><br><br>Thank you";
 
-	sendMail( req.headers.user.email, "Confirm your email with " + websiteUrl, htmlBody );
+	sendMail( req.headers.user.email, "Verify your email with " + websiteUrl, htmlBody );
 
 	return res.sendStatus(200)
 

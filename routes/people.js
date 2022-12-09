@@ -48,16 +48,6 @@ async function sendMail( recipient, subject, htmlBody ) {
 
 //////////////////////////////// Express Routes ////////////////////////////////
 
-router.use(( req, res, next )=>{
-
-	if ( req.headers.user.isVerified !== true ){
-		return res.status( 403 ).render( "confirmEmail.ejs" );
-	}
-
-	next();
-
-});
-
 router.get('/', async (req, res, next) => {
 	// Render the people page with a table containing all open invites and a table containing all accepted invites
 
@@ -119,7 +109,7 @@ router.post('/', async (req, res, next) => {
 		await invitedUser.pending.push( user.email );
 		await invitedUser.save();
 
-		const htmlBody = user.firstName + " " + user.lastName + " at " + user.email + " has invited you to collaborate on tasks at " + websiteUrl + ". You can accept their invitation at <a clicktracking='off' href=https://" + websiteUrl + "/people target='_blank'>https://" + websiteUrl + "/people</a>";
+		const htmlBody = user.firstName + " " + user.lastName + " at " + user.email + " has invited you to collaborate on tasks with Tasks. You can accept their invitation at <a clicktracking='off' href=https://" + websiteUrl + "/people target='_blank'>https://" + websiteUrl + "/people</a>";
 		sendMail( invitedUser.email, user.firstName + " " + user.lastName + " has invited you to share tasks.", htmlBody );
 
 	}
