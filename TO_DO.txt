@@ -1,3 +1,5 @@
 - Move placefetches to global.js
 
 - Allow Password Changes
+
+- Implement login referrer
