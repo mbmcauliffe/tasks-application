@@ -236,6 +236,10 @@ async function importPending ( email ) {
 
 function redirectHTTP(req, res, next){
 
+	if ( req.hostname !== websiteUrl ) {
+		return res.sendStatus(401);
+	}
+
   if (!req.secure) {
 
     return res.redirect("https://" + websiteUrl);
@@ -262,7 +266,6 @@ app.use(express.static('./public'));
 // Request Processing
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(logger);
 app.use(convertToken);
 
 // Application Security
@@ -277,6 +280,8 @@ if (serverMode !== "dev") {
 		contentSecurityPolicy: false,
 	}));
 }
+
+app.use(logger);
 
 //////////////////////////////// Express Routes ////////////////////////////////
 
