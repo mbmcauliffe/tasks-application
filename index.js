@@ -154,6 +154,8 @@ async function authorizeToken( req, res, next ){
 		req.headers.user = {
 			id: await existingUser._id,
 			email: await existingUser.email,
+			firstName: await existingUser.firstName,
+			lastName: await existingUser.lastName,
 			people: await existingUser.people,
 			isVerified: await existingUser.isVerified
 		};

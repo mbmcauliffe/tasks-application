@@ -61,8 +61,8 @@ autoremoveTasks();
 router.get('/', async (req, res, next) => {
 	// Get all of the information relevant to every task and render the tasks page for the user
 
-	var leanUser = await User.findOne({ email: req.headers.user.email }).lean();
-	var tasks = await Task.find({ people: { $in: leanUser._id } }); 
+	var user = await User.findOne({ email: req.headers.user.email }).lean();
+	var tasks = await Task.find({ people: { $in: user._id } }); 
 
 	const timeNow = new Date();
 	var people = [];
@@ -101,21 +101,18 @@ router.get('/', async (req, res, next) => {
 
 		for ( j=0; j<tasks[i].people.length; j++ ) {
 
-			if ( leanUser.people[ tasks[i].people[j] ] === null ) {
+			if ( user.people[ tasks[i].people[j] ] === null ) {
 
-				leanUser.people[ tasks[i].people[j] ] = { canShare: false };
+				user.people[ tasks[i].people[j] ] = { canShare: false };
 				var addedPerson = await User.findOne({ _id: tasks[i].people[j] }).lean();
-				addedPerson.people[ leanUser._id ] = { canShare: false };
+				addedPerson.people[ user._id ] = { canShare: false };
 				await User.updateOne({ _id: tasks[i].people[j] }, { $set: { people: addedPerson.people }});
 
 			}
 
 		}
-		await User.updateOne({ _id: leanUser._id }, { $set: { people: leanUser.people }});
 
 	}
-
-	const user = await User.findOne({ email: req.headers.user.email });
 
 	for ( id in user.people ) {
 
@@ -125,10 +122,13 @@ router.get('/', async (req, res, next) => {
 			id: person._id,
 			email: person.email,
 			firstName: person.firstName,
-			lastName: person.lastName
+			lastName: person.lastName,
+			canBeSharedWith: person.people[ user._id ].canShare
 		});
 
 	}
+
+	await User.updateOne({ _id: user._id }, { $set: { people: user.people }});
 
 	await tasks.sort( ( a, b )=>{
 		// Sort tasks so that the tasks ending soonest are listed towards the top of the page when rendered
@@ -187,18 +187,18 @@ router.post('/', async (req, res, next) => {
 		}));
 	}
 
-	var peopleList = [ req.headers.user.id ]; // This object is only to check if the user is trying to add a user they haven't connected with yet
-
-	for ( i=0; i<req.headers.user.people.length; i++ ) {
-		peopleList.push( req.headers.user.people[i] )
-	}
-
 	for ( i=0; i<req.body.people.length; i++ ) {
 
-		if ( peopleList.indexOf(req.body.people[i]) < 0 && task.people.indexOf(req.body.people[i]) < 0 ) {
+		if ( req.body.people[i] == req.headers.user.id ) {
+			continue
+		}
+
+		const person = await User.findOne({ _id: req.body.people[i] });
+
+		if ( person.people[ req.headers.user.id ].canShare !== true && task.people.indexOf( req.body.people[i] ) < 0 ) {
 			return res.status(400).send(JSON.stringify({
 				title: "Unauthorized",
-				message: "You may only add users who appear on your people page."
+				message: req.headers.user.firstName + " " + req.headers.user.lastName + " has not allowed you to add them to tasks."
 			}));
 		}
 

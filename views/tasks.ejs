@@ -168,7 +168,7 @@
 
 							<option value="" selected>- Select -</option>
 
-							<% for ( i=0; i<locals.people.length; i++ ) { if ( locals.people.canBeSharedWith === true ) { // Add each person who is available to be added to the task to the people select %>
+							<% for ( i=0; i<locals.people.length; i++ ) { if ( locals.people[i].canBeSharedWith === true ) { // Add each person who is available to be added to the task to the people select %>
 								<option value="<%= locals.people[i].id %>"><%= locals.people[i].firstName + " " + locals.people[i].lastName + " ( " + locals.people[i].email + " )"%></option>
 							<% } } %>
 
