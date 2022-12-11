@@ -11,3 +11,7 @@
 - Two-Pane Task Editor
 
 - Maybe prohibit removing users when tasks are still shared
+
+- Change Sort function to back-load future tasks
+
+- Optimize Tasks POST

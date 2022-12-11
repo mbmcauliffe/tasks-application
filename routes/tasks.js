@@ -80,7 +80,7 @@ router.get('/', async (req, res, next) => {
 
 			tasks[i].status = "Open";
 
-			if ( tasks[i].milisecondsElapsed < 0 ) {
+			if ( milisecondsElapsed < 0 ) {
 				tasks[i].status = "Future"
 			}
 
