@@ -23,27 +23,16 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	people: {
-		type: Array,
-		required: true,
-		default: []
-	},
-	pending: {
-		type: Array,
-		required: true,
-		default: []
-	},
-	invited: {
-		type: Array,
-		required: true,
-		default: []
-	},
 	isVerified: {
 		type: Boolean,
 		required: true,
 		default: false
+	},
+	people: {
+		type: {},
+		required: true,
+		default: {}
 	}
-
 });
 
 module.exports = mongoose.model( "User", userSchema );

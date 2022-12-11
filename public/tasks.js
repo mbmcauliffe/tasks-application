@@ -112,6 +112,8 @@ function editTask( taskId ){
 	document.getElementById("promptHeading").innerText = "Edit Task";
 
 	document.getElementById("titleInput").value = taskData.title;
+	document.getElementById("createdBy").innerText = taskData.createdBy;
+	document.getElementById("createdByBlock").style.setProperty("display", "block");
 	document.getElementById("descriptionInput").value = taskData.description;
 	
 	document.getElementById("startDateInput").value = new Date( taskData.startDate ).toISOString().split("T")[0];
@@ -159,6 +161,7 @@ function closeTaskEdit() {
 	document.getElementById("statusSelect")[0].selected = "selected";
 
 	// Hide the edit-specific elements
+	document.getElementById("createdByBlock").style.setProperty("display", "none");
 	document.getElementById("statusSelectBlock").style.setProperty("display", "none");
 	document.getElementById("deleteTaskButton").style.setProperty("display", "none");
 

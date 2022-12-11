@@ -55,22 +55,26 @@ router.get('/', async (req, res, next) => {
 	const user = req.headers.user;
 
 	// This to lookup and attach relevant data on each person based on the IDs in the user people array
-	for ( i=0; i<user.people.length; i++ ) {
+	for ( let id in user.people ) {
 
-		const person = await User.findOne({ _id: user.people[i] });
+		const person = await User.findOne({ _id: id });
+
+		if ( person == null ) {
+			continue
+		}
+
 		people.push({
 			id: person._id,
 			email: person.email,
 			firstName: person.firstName,
-			lastName: person.lastName
+			lastName: person.lastName,
+			canShare: user.people[id].canShare
 		});
 
 	}
 
 	return res.render("people.ejs", {
 		people: people,
-		pending: user.pending,
-		invited: user.invited
 	});
 
 });
@@ -85,90 +89,59 @@ router.post('/', async (req, res, next) => {
 		}));
 	}
 
-	const user = await User.findOne({ email: req.headers.user.email});
+	var user = await User.findOne({ _id: req.headers.user.id}).lean();
 	const inviteEmail = req.body.email.toLowerCase();
-	const invitedUser = await User.findOne({ email: inviteEmail });
+	var invitedUser = await User.findOne({ email: inviteEmail }).lean();
 
-	// Prevent duplicate invites
-	if ( user.invited.indexOf( inviteEmail ) >= 0 ) {
-		return res.status(200).send()
-	}
-
-	await user.invited.push( inviteEmail );
-
-	await user.save();
-
-	if ( invitedUser !== null ) {
-		// The invited user may or may not exist at the time of invite. If not, the invite will be imported at the time of user creation in the auth route
-
-		// Prevent duplicate invites
-		if ( invitedUser.pending.indexOf( user.email ) >= 0 ) {
-			return res.status(200).send()
-		}
-
-		await invitedUser.pending.push( user.email );
-		await invitedUser.save();
-
-		const htmlBody = user.firstName + " " + user.lastName + " at " + user.email + " has invited you to collaborate on tasks with Tasks. You can accept their invitation at <a clicktracking='off' href=https://" + websiteUrl + "/people target='_blank'>https://" + websiteUrl + "/people</a>";
-		sendMail( invitedUser.email, user.firstName + " " + user.lastName + " has invited you to share tasks.", htmlBody );
-
-	}
-
-	return res.status(200).send()
-
-});
-
-router.post('/approve', async (req, res) => {
-	// This to approve pending invites received from the passed email address
-
-	const user = await User.findOne({ email: req.headers.user.email});
-	const approvedUser = await User.findOne({ email: req.body.email });
-
-	if ( approvedUser == null ) {
+	if ( invitedUser == null ) {
 		return res.status(400).send(JSON.stringify({
-			title: "Unable",
-			message: "This user no longer exists."
+			title: "Not Found",
+			message: "No user was found with that email address."
 		}));
 	}
 
-	await user.pending.splice(user.pending.indexOf( req.body.email ), 1);
-	await approvedUser.invited.splice(approvedUser.invited.indexOf( user.email ), 1);
+	// Prevent duplicate invites
+	if ( user.people[ invitedUser._id ] != null ) {
+		return res.status(400).send(JSON.stringify({
+			title: "Duplicate",
+			message: "This person has already been added."
+		}));
+	}
 
-	await user.people.push( approvedUser._id );
-	await approvedUser.people.push( user._id );
+	user.people[ invitedUser._id ] = { canShare: true };
+	invitedUser.people[ user._id ] = { canShare: false };
 
-	await user.save();
-	await approvedUser.save();
+	await User.updateOne({ _id: user._id }, { $set: { people: user.people }});
+	await User.updateOne({ _id: invitedUser._id }, { $set: { people: invitedUser.people }});
+
+	const htmlBody = "<style type='text/css'>*{ font-size: 20px; }</style>" + user.firstName + " " + user.lastName + " at " + user.email + " has invited you to collaborate on tasks with Tasks. You can accept their invitation at <a clicktracking='off' href=https://" + websiteUrl + "/people target='_blank'>https://" + websiteUrl + "/people</a>";
+	sendMail( invitedUser.email, user.firstName + " " + user.lastName + " has invited you to share tasks.", htmlBody );
 
 	return res.status(200).send()
 
 });
 
-router.delete('/pending', async (req, res) => {
-	// This to bidirectionally remove all records of any invite between any two parties user and passed
+router.patch('/', async (req, res) => {
+	// This to change a person's canShare property within the user object
 
-	const user = await User.findOne({ email: req.headers.user.email});
-	const deletedUser = await User.findOne({ email: req.body.email });
+	const user = await User.findOne({ _id: req.headers.user.id}).lean();
+	const person = await User.findOne({ _id: req.body.id });
 
-	if ( user.pending.indexOf( req.body.email ) >= 0 ) {
-		await user.pending.splice(user.pending.indexOf( req.body.email ), 1);
-	}
-	if ( user.invited.indexOf( req.body.email ) >= 0 ) {
-		await user.invited.splice(user.invited.indexOf( req.body.email ), 1);
-	}
-	await user.save();
+	if ( person == null ) {
 
-	if ( deletedUser != null ) {
+		delete user.people[ req.body.id ];
+		await User.updateOne({ _id: user._id }, { $set: { people: user.people }});
 
-		if ( deletedUser.pending.indexOf( user.email ) >= 0 ) {
-			await deletedUser.pending.splice(deletedUser.pending.indexOf( user.email ), 1);
-		}
-		if ( deletedUser.invited.indexOf( user.email ) >= 0 ) {
-			await deletedUser.invited.splice(deletedUser.invited.indexOf( user.email ), 1);
-		}
-		await deletedUser.save();
+		return res.status(400).send(JSON.stringify({
+			title: "Unable",
+			message: "This user no longer exists and will be removed on your next refresh."
+		}));
 
 	}
+
+	user.people[ req.body.id ].canShare = req.body.value;
+
+	await User.updateOne({ _id: user._id }, { $set: { people: user.people }});
 
 	return res.status(200).send()
 
@@ -177,21 +150,21 @@ router.delete('/pending', async (req, res) => {
 router.delete('/', async (req, res) => {
 	// This to remove a previously approved connection between two accounts
 
-	const user = await User.findOne({ email: req.headers.user.email});
-	const deletedUser = await User.findOne({ _id: req.body.id });
+	const user = await User.findOne({ _id: req.headers.user.id}).lean();
+	const deletedPerson = await User.findOne({ _id: req.body.id }).lean();
 
-	if ( deletedUser == null ) {
+	if ( deletedPerson == null ) {
 		return res.status(400).send(JSON.stringify({
 			title: "Invalid",
 			message: "No User was found."
 		}));
 	}
 
-	await user.people.splice(user.people.indexOf( req.body.id ), 1);
-	await deletedUser.people.splice(deletedUser.people.indexOf( user.id ), 1);
+	delete user.people[ deletedPerson._id ];
+	delete deletedPerson.people[ user._id ];
 
-	await user.save();
-	await deletedUser.save();
+	await User.updateOne({ _id: user._id }, { $set: { people: user.people }});
+	await User.updateOne({ _id: deletedPerson._id }, { $set: { people: deletedPerson.people }});
 
 	return res.status(200).send()
 

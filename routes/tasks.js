@@ -59,56 +59,15 @@ autoremoveTasks();
 //////////////////////////////// Express Routes ////////////////////////////////
 
 router.get('/', async (req, res, next) => {
-	// Get all of the information relevant to every tas kand render the tasks page for the user
+	// Get all of the information relevant to every task and render the tasks page for the user
 
-	const user = await User.findOne({ email: req.headers.user.email });
-	var tasks = await Task.find({ people: { $in: user._id } }); // Return only the user tasks where task.people includes user._id
-
-	var people = []; // Users may add these people to tasks
-	var taskPeople = []; // Users may not add these people to tasks but can still see that they are present in a shared task
-
-	// This to lookup and attach relevant on each person based on the IDs in the user people array
-	for ( i=0; i<user.people.length; i++ ) {
-
-		const person = await User.findOne({ _id: user.people[i] });
-
-		people.push({
-			id: person._id,
-			email: person.email,
-			firstName: person.firstName,
-			lastName: person.lastName
-		});
-
-		taskPeople.push({
-			id: person._id,
-			email: person.email,
-			firstName: person.firstName,
-			lastName: person.lastName
-		});
-
-	}
+	var leanUser = await User.findOne({ email: req.headers.user.email }).lean();
+	var tasks = await Task.find({ people: { $in: leanUser._id } }); 
 
 	const timeNow = new Date();
+	var people = [];
 
 	for ( i=0; i<tasks.length; i++ ) {
-
-		for ( j=0; j<tasks[i].people.length; j++ ) {
-			// If a person listed by the task is not connected to the user ( hence added to array "people" above ), add them to the taskPeople array
-
-			if ( user.people.indexOf( tasks[i].people[j] ) >= 0 ) {
-				continue
-			}
-
-			const person = await User.findOne({ _id: tasks[i].people[j] });
-
-			taskPeople.push({
-				id: person._id,
-				email: person.email,
-				firstName: person.firstName,
-				lastName: person.lastName
-			});
-
-		}
 
 		const startDate = new Date( tasks[i].startDate );
 		const endDate = new Date( tasks[i].endDate );
@@ -140,6 +99,35 @@ router.get('/', async (req, res, next) => {
 			tasks[i].timeRemaining = Math.trunc( milisecondsRemaining / 1000 / 60 / 60 )+ " Hours";
 		}
 
+		for ( j=0; j<tasks[i].people.length; j++ ) {
+
+			if ( leanUser.people[ tasks[i].people[j] ] === null ) {
+
+				leanUser.people[ tasks[i].people[j] ] = { canShare: false };
+				var addedPerson = await User.findOne({ _id: tasks[i].people[j] }).lean();
+				addedPerson.people[ leanUser._id ] = { canShare: false };
+				await User.updateOne({ _id: tasks[i].people[j] }, { $set: { people: addedPerson.people }});
+
+			}
+
+		}
+		await User.updateOne({ _id: leanUser._id }, { $set: { people: leanUser.people }});
+
+	}
+
+	const user = await User.findOne({ email: req.headers.user.email });
+
+	for ( id in user.people ) {
+
+		const person = await User.findOne({ _id: id });
+
+		people.push({
+			id: person._id,
+			email: person.email,
+			firstName: person.firstName,
+			lastName: person.lastName
+		});
+
 	}
 
 	await tasks.sort( ( a, b )=>{
@@ -154,8 +142,7 @@ router.get('/', async (req, res, next) => {
 			lastName: user.lastName,
 		},
 		people: people,
-		tasks: tasks,
-		taskPeople: taskPeople
+		tasks: tasks
 	});
 
 });
@@ -218,6 +205,7 @@ router.post('/', async (req, res, next) => {
 	}
 
 	task.title = req.body.title;
+	task.createdBy = req.headers.user.firstName + " " + req.headers.user.lastName;
 	task.description = req.body.description;
 	task.startDate = req.body.startDate;
 	task.endDate = req.body.endDate;

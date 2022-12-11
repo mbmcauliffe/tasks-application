@@ -28,52 +28,7 @@
 			<div class="button" style="height:1.1em; line-height: 1.1em;margin-left:1em" onclick="submitPost()">Invite</div>
 		</div>
 
-		<% if ( locals.pending.length != 0 || locals.invited.length != 0 ) { // Display the pending/invited table if there are any pending or invited people %>
-
-			<div class="tableWrapper">
-				<table>
-
-					<thead>
-						<tr>
-							<th>Email Address</th>
-							<th>Status</th>
-							<th>Action</th>
-						</tr>
-					</thead>
-
-					<tbody>
-						
-						<% for ( i=0; i<locals.pending.length; i++ ) { // Display each table row showing a pending person only by their email address %>
-
-							<tr>
-								<td><%= locals.pending[i] %></td>
-								<td>Pending</td>
-								<td style="display: flex; justify-content:space-evenly">
-									<div class="button green" onclick="approvePending('<%= locals.pending[i] %>')">Approve</div>
-									<div class="button red" onclick="removePending('<%= locals.pending[i] %>')">Reject</div>
-								</td>
-							</tr>
-
-						<% } %>
-
-						<% for ( i=0; i<locals.invited.length; i++ ) { // Display each table row showing an invited person only by their email address %>
-
-							<tr>
-								<td><%= locals.invited[i] %></td>
-								<td>Invited</td>
-								<td><div class="button red" onclick="removePending('<%= locals.invited[i] %>')">Withdraw</div></td>
-							</tr>
-
-						<% } %>
-
-					</tbody>
-					
-				</table>
-			</div>
-
-		<% } %>
-
-		<% if ( locals.people.length != 0 ) { // Display the approved table if there are any approved people %>
+		<% if ( locals.people.length != 0 ) { // Display the table if there are any people %>
 
 		<div class="tableWrapper">
 			<table>
@@ -83,7 +38,8 @@
 						<th>First Name</th>
 						<th>Last Name</th>
 						<th>Email Address</th>
-						<th>Action</th>
+						<th>Can Share With Me</th>
+						<th>Remove</th>
 					</tr>
 				</thead>
 
@@ -95,7 +51,8 @@
 							<td><%= locals.people[i].firstName %></td>
 							<td><%= locals.people[i].lastName %></td>
 							<td><%= locals.people[i].email %></td>
-							<td><div class="button red" onclick="removePerson( '<%= locals.people[i].id %>' )">Remove</div></td>
+							<td><input type="checkbox" name="canShare" id="canShare" <% if ( locals.people[i].canShare === true ) { %>checked<% } %>><label class="toggle" for="canShare" onclick="placeFetch('/people', 'PATCH', { id: '<%= locals.people[i].id %>', value: !document.getElementById('canShare').checked }, ()=>{} )"><div class="toggleCircle"></div></label></td>
+							<td><div class="button red" onclick="placeFetch( '/people', 'DELETE', { id: '<%= locals.people[i].id %>' }, ()=>{window.location.replace('/people')} );">Remove</div></td>
 						</tr>
 
 					<% } %>

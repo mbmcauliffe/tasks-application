@@ -5,3 +5,13 @@
 - Send Logs via email
 
 - add start time
+
+- Convert SVG logo to PNG
+
+- Redesign Homepage
+
+- Remove Tasks Fetch Infrastructure
+
+- Clean up people nomenclature accross the application. Perhaps "User" and "Other"?
+
+- Optimize Tasks GET "/"

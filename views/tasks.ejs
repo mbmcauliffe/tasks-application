@@ -95,6 +95,10 @@
 					<input type="text" id='titleInput'>
 				</div>
 
+				<div class='inputBlock' id="createdByBlock" style="display: none">
+					<div>Created By: <div id="createdBy"></div></div>
+				</div>
+
 				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
 					<div>Description:</div>
 					<input type="text" id='descriptionInput'>
@@ -116,31 +120,31 @@
 
 						<option value="00:00:00" selected>- Select -</option>
 						<option value="06:00:00">6:00 AM</option>
-						<option value="06:30:00">- 6:30 AM</option>
+						<option value="06:30:00">6:30 AM</option>
 						<option value="07:00:00">7:00 AM</option>						
-						<option value="07:30:00">- 7:30 AM</option>
+						<option value="07:30:00">7:30 AM</option>
 						<option value="08:00:00">8:00 AM</option>						
-						<option value="08:30:00">- 8:30 AM</option>
+						<option value="08:30:00">8:30 AM</option>
 						<option value="09:00:00">9:00 AM</option>						
-						<option value="09:30:00">- 9:30 AM</option>
+						<option value="09:30:00">9:30 AM</option>
 						<option value="10:00:00">10:00 AM</option>						
-						<option value="10:30:00">- 10:30 AM</option>
+						<option value="10:30:00">10:30 AM</option>
 						<option value="11:00:00">6:00 AM</option>						
-						<option value="11:30:00">- 6:30 AM</option>
+						<option value="11:30:00">6:30 AM</option>
 						<option value="12:00:00">12:00 PM</option>						
-						<option value="12:30:00">- 12:30 PM</option>
+						<option value="12:30:00">12:30 PM</option>
 						<option value="13:00:00">1:00 PM</option>						
-						<option value="13:30:00">- 1:30 PM</option>
+						<option value="13:30:00">1:30 PM</option>
 						<option value="14:00:00">2:00 PM</option>						
-						<option value="14:30:00">- 2:30 PM</option>
+						<option value="14:30:00">2:30 PM</option>
 						<option value="15:00:00">3:00 PM</option>						
-						<option value="15:30:00">- 3:30 PM</option>
+						<option value="15:30:00">3:30 PM</option>
 						<option value="16:00:00">4:00 PM</option>						
-						<option value="16:30:00">- 4:30 PM</option>
+						<option value="16:30:00">4:30 PM</option>
 						<option value="17:00:00">5:00 PM</option>						
-						<option value="17:30:00">- 5:30 PM</option>
+						<option value="17:30:00">5:30 PM</option>
 						<option value="18:00:00">6:00 PM</option>						
-						<option value="18:30:00">- 6:30 PM</option>
+						<option value="18:30:00">6:30 PM</option>
 
 					</select>
 				</div>
@@ -156,7 +160,7 @@
 					</select>
 				</div>
 
-				<div class='inputBlock' id="peopleBlock" onkeydown="return addPeople(event.key);" <% if ( locals.taskPeople.length == 0 ) { %>style="display:none"<% } %>>
+				<div class='inputBlock' id="peopleBlock" onkeydown="return addPeople(event.key);" <% if ( locals.people.length == 0 ) { %>style="display:none"<% } %>>
 					<div>People:</div>
 
 					<div class="flexRow">
@@ -164,9 +168,9 @@
 
 							<option value="" selected>- Select -</option>
 
-							<% for ( i=0; i<locals.people.length; i++ ) { // Add each person who is available to be added to the task to the people select %>
+							<% for ( i=0; i<locals.people.length; i++ ) { if ( locals.people.canBeSharedWith === true ) { // Add each person who is available to be added to the task to the people select %>
 								<option value="<%= locals.people[i].id %>"><%= locals.people[i].firstName + " " + locals.people[i].lastName + " ( " + locals.people[i].email + " )"%></option>
-							<% } %>
+							<% } } %>
 
 						</select>
 						<div class="button" style="margin:0; margin-left: 0.5em" onclick="addPerson()">Add</div>
@@ -177,11 +181,11 @@
 						<div><%= locals.user.firstName + " " + locals.user.lastName %></div>
 					</div>
 
-					<% for ( i=0; i<locals.taskPeople.length; i++ ) { // For each person on the task already or available to be added to the task, add an indicator that can be used to show them as being on the task %>
+					<% for ( i=0; i<locals.people.length; i++ ) { // For each person on the task already or available to be added to the task, add an indicator that can be used to show them as being on the task %>
 
-						<div class="flexRow" style="justify-content: flex-start; display:none" id="person<%= locals.taskPeople[i].id %>">
-							<div class="button red" onclick="removePerson( '<%= locals.taskPeople[i].id %>' )">Remove</div>
-							<div><%= locals.taskPeople[i].firstName + " " + locals.taskPeople[i].lastName + " ( " + locals.taskPeople[i].email + " )"%></div>
+						<div class="flexRow" style="justify-content: flex-start; display:none" id="person<%= locals.people[i].id %>">
+							<div class="button red" onclick="removePerson( '<%= locals.people[i].id %>' )">Remove</div>
+							<div><%= locals.people[i].firstName + " " + locals.people[i].lastName + " ( " + locals.people[i].email + " )"%></div>
 						</div>
 
 					<% } %>

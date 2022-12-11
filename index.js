@@ -59,7 +59,9 @@ const rateLimit = require('express-rate-limit')
 
 // Limit total requests
 const limiter = rateLimit({
-	handler: (req, res, next) => {return res.status(429).render("429.ejs");},
+	handler: (req, res, next) => {
+		return res.status(429).render("429.ejs");
+	},
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window`
 	standardHeaders: false,
@@ -68,7 +70,9 @@ const limiter = rateLimit({
 
 // Limit login requests
 const loginLimiter = rateLimit({
-	handler: (req, res, next) => {return res.status(429).render("429.ejs");},
+	handler: (req, res, next) => {
+		return res.status(429).render("429.ejs");
+	},
 	windowMs: 1 * 60 * 1000,
 	max: 100,
 	standardHeaders: false,
@@ -151,8 +155,6 @@ async function authorizeToken( req, res, next ){
 			id: await existingUser._id,
 			email: await existingUser.email,
 			people: await existingUser.people,
-			pending: await existingUser.pending,
-			invited: await existingUser.invited,
 			isVerified: await existingUser.isVerified
 		};
 
@@ -214,23 +216,6 @@ function validateEmail( req, res, next ){
 	}
 
 	next();
-
-}
-
-async function importPending ( email ) {
-
-	const users = await User.find();
-	var pending = [];
-
-	for ( i=0; i<users.length; i++ ) {
-
-		if ( users[i].invited.indexOf( email ) >= 0 ) {
-			pending.push( users[i].email );
-		}
-
-	}
-
-	return pending
 
 }
 
@@ -407,7 +392,6 @@ app.post('/create', validateEmail, async (req, res) => {
 	user.lastName = req.body.lastName;
 	user.email = req.body.email.toLowerCase();
 	user.password = await bcrypt.hash(req.body.password, 8);
-	user.pending = await importPending( user.email );
 
 	// Save the new user
 	user.save();
@@ -486,7 +470,7 @@ app.post("/verify", async ( req, res )=>{
 	});
 
 	identifierURL = "https://" + websiteUrl + "/verify/" + identifier;
-	const htmlBody = "Howdy,<br><br>Please use the following link to verify your email address with Tasks:<br><br><a clicktracking='off' href=" + identifierURL + " target='_blank' style='text-decoration: none;	display: block;background: hsl(205, 100%, 16%);width: max-content;height: 1em;padding: 0.1em 0.5em 0.1em 0.5em;margin: 0.25em 1em 0.25em 0em;color: white;line-height: 1em;cursor: pointer;border:0.1em solid white' >Verify Email</a><br><br>Thank you";
+	const htmlBody = "<style type='text/css'>*{ font-size: 20px; } .button{ font-weight:bold; text-decoration: none;	display: block;background: hsl(205, 100%, 16%);width: max-content;height: 1em;padding: 0.1em 0.5em 0.1em 0.5em;margin: 0.25em 1em 0.25em 0em;color: white;line-height: 1em;cursor: pointer;border:0.1em solid white } .button:hover{ color: hsl(205, 100%, 16%); background-color: white; border-color: hsl(205, 100%, 16%); }</style>Howdy,<br><br>Please use the following link to verify your email address with Tasks:<br><br><a clicktracking='off' href=" + identifierURL + " target='_blank' class='button' >Verify Email</a><br>Thank you,<br>Tasks.MBMcAuliffe.net";
 
 	sendMail( req.headers.user.email, "Verify your email with " + websiteUrl, htmlBody );
 
