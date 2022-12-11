@@ -17,7 +17,7 @@ async function submitPost() {
 	task.title = await document.getElementById("titleInput").value;
 	task.description = await document.getElementById("descriptionInput").value;
 	task.startDate = await document.getElementById("startDateInput").value;
-	task.endDate = await new Date(document.getElementById("endDateInput").value + "T" + document.getElementById("timeSelect").value);
+	task.endDate = await document.getElementById("endDateInput").value;
 	task.status = await document.getElementById("statusSelect").value;
 
 	placeFetch( "/", "POST", task );
@@ -87,15 +87,13 @@ function editTask( taskId ){
 	document.getElementById("createdByBlock").style.setProperty("display", "block");
 	document.getElementById("descriptionInput").value = taskData.description;
 	
-	document.getElementById("startDateInput").value = new Date( taskData.startDate ).toISOString().split("T")[0];
-	document.getElementById("endDateInput").value = new Date( taskData.endDate ).toISOString().split("T")[0];
+	var localStartDate = new Date( taskData.startDate );
+	localStartDate.setMinutes(localStartDate.getMinutes() - localStartDate.getTimezoneOffset());
+	document.getElementById("startDateInput").value = localStartDate.toISOString().slice(0,16);
 
-	// Populate the end time select object with a correctly formatted time adjusted for time zone
-	const date = new Date(taskData.endDate);
-	const hours = addZeros(date.getHours());
-	const minutes = addZeros(date.getMinutes());
-	const seconds = addZeros(date.getSeconds());
-	document.getElementById("timeSelect").value =  hours + ":" + minutes + ":" + seconds;
+	var localEndDate = new Date( taskData.endDate );
+	localEndDate.setMinutes(localEndDate.getMinutes() - localEndDate.getTimezoneOffset());
+	document.getElementById("endDateInput").value = localEndDate.toISOString().slice(0,16);
 
 	// Display the indicators for each of the people on the task
 	for ( i=0; i<taskData.people.length; i++ ) {
@@ -127,7 +125,6 @@ function closeTaskEdit() {
 	document.getElementById('promptHeading').innerText = 'New Task';
 
 	// Return the selects to their default values
-	document.getElementById("timeSelect")[0].selected = "selected";
 	document.getElementById("personSelect")[0].selected = "selected";
 	document.getElementById("statusSelect")[0].selected = "selected";
 
@@ -191,8 +188,11 @@ function hideCompleted(){
 function setDefaultStart (){
 	// Set the start date of a new task to the present day within the user's own time zone
 
-	const date = new Date().toLocaleString('en-US', { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
-	document.getElementById("startDateInput").value = new Date(date.split(", ")[0]).toISOString().split("T")[0];
+	var now = new Date();
+	now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+
+	document.getElementById("startDateInput").value = now.toISOString().slice(0,16);
+
 }
 
 // Refresh every half-hour in order to keep hour numbers correct if not editing a task

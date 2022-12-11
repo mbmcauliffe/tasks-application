@@ -12,7 +12,7 @@ echo "deb [signed-by=/usr/share/keyrings/mongodb-keyring.gpg] http://repo.mongod
 
 sudo apt update
 sudo apt upgrade -y
-sudo apt install -y mongodb-org
+sudo apt install -y mongodb-org mongosh
 sudo apt autoremove -y
 
 npm install -g n
