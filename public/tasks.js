@@ -26,36 +26,6 @@ async function submitPost() {
 
 }
 
-async function placeFetch( endpoint, method, body ) {
-
-	// Place the request
-	const response = await fetch(endpoint, {
-		method: method,
-		headers: {
-		'Content-Type': 'application/json'
-	},
-		body: JSON.stringify( body )
-	});
-
-	// Refresh the window if the server sends status 200
-	if(response.status === 200){
-		window.location.replace("/");
-		return
-	}
-
-	// Status 400 is only sent with an error response, rendered here for the user
-	if ( response.status === 400 ) {
-		const textResponse = await response.text();
-
-		const error = await JSON.parse(textResponse);
-		console.log(error);
-		raiseError(error);
-	}
-
-	return
-
-}
-
 function addPerson ( personId=null ) {
 	// Display the person as a member of the task and add their id to the task object for POST requests
 	// Does not actually send information to the server
@@ -71,6 +41,7 @@ function addPerson ( personId=null ) {
 	if ( personId == "" || task.people.indexOf( personId ) >= 0) {
 		return
 	}
+	console.log(personId)
 
 	// Add the personId to the task object
 	task.people.push(personId);

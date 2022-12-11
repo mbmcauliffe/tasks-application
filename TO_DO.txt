@@ -10,8 +10,8 @@
 
 - Redesign Homepage
 
-- Remove Tasks Fetch Infrastructure
-
 - Clean up people nomenclature accross the application. Perhaps "User" and "Other"?
 
 - Two-Pane Task Editor
+
+- Maybe prohibit removing users when tasks are still shared

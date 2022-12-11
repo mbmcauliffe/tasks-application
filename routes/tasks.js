@@ -101,7 +101,7 @@ router.get('/', async (req, res, next) => {
 
 		for ( j=0; j<tasks[i].people.length; j++ ) {
 
-			if ( user.people[ tasks[i].people[j] ] === null ) {
+			if ( user.people[ tasks[i].people[j] ] == null && tasks[i].people[j] != req.headers.user.id ) {
 
 				user.people[ tasks[i].people[j] ] = { canShare: false };
 				var addedPerson = await User.findOne({ _id: tasks[i].people[j] }).lean();
