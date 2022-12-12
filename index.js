@@ -119,7 +119,7 @@ async function authorizeToken( req, res, next ){
 
 	// Reject if the token does not exist
 	if ( req.headers.authorization == null ) {
-		return res.status(401).redirect("/login");
+		return res.status(401).redirect("/");
 	}
 
 	jwt.verify(req.headers.authorization, tokenSecret, async (err, tokenData) => {
@@ -143,7 +143,7 @@ async function authorizeToken( req, res, next ){
 
 		// Reject if the user is not currently in the database
 		if ( existingUser == null ) {
-			return res.status(403).redirect("/login");
+			return res.status(403).redirect("/");
 		}
 
 	if ( existingUser.isVerified !== true && req.url !== "/verify" && req.url !== "/logout" ){
@@ -271,17 +271,6 @@ if (serverMode !== "dev") {
 app.use(logger);
 
 //////////////////////////////// Express Routes ////////////////////////////////
-
-app.get('/login', async (req, res) => {
-
-	// Prevent logged-in users from using this route
-	if ( req.headers.authorization ) {
-		return res.redirect("/");
-	}
-
-	return res.render("login.ejs");
-
-});
 
 app.post('/login', async (req, res) => {
 
@@ -472,7 +461,7 @@ app.post("/verify", async ( req, res )=>{
 	});
 
 	identifierURL = "https://" + websiteUrl + "/verify/" + identifier;
-	const htmlBody = "<style type='text/css'>*{ font-size: 20px; } .button{ font-weight:bold; text-decoration: none;	display: block;background: hsl(205, 100%, 16%);width: max-content;height: 1em;padding: 0.1em 0.5em 0.1em 0.5em;margin: 0.25em 1em 0.25em 0em;color: white;line-height: 1em;cursor: pointer;border:0.1em solid white } .button:hover{ color: hsl(205, 100%, 16%); background-color: white; border-color: hsl(205, 100%, 16%); }</style>Howdy,<br><br>Please use the following link to verify your email address with Tasks:<br><br><a clicktracking='off' href=" + identifierURL + " target='_blank' class='button' >Verify Email</a><br>Thank you,<br>Tasks.MBMcAuliffe.net";
+	const htmlBody = "<style type='text/css'>*{ font-size: 20px; } .button{ font-weight:bold; text-decoration: none;	display: block;background: hsl(205, 100%, 16%);width: max-content;height: 1em;padding: 0.2em 0.5em 0.2em 0.5em;margin: 0.25em 1em 0.25em 0em;color: white;line-height: 1em;cursor: pointer;border:0.1em solid white } .button:hover{ color: hsl(205, 100%, 16%); background-color: white; border-color: hsl(205, 100%, 16%); }</style>Howdy,<br><br>Please use the following link to verify your email address with Tasks:<br><br><a clicktracking='off' href=" + identifierURL + " target='_blank' class='button' >Verify Email</a><br>Thank you,<br>Tasks.MBMcAuliffe.net";
 
 	sendMail( req.headers.user.email, "Verify your email with " + websiteUrl, htmlBody );
 

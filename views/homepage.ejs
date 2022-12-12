@@ -9,28 +9,114 @@
 	<link rel="icon" type="image/x-icon" href="/img/favicon.png">
 </head>
 
+<script type="text/javascript" defer>
+	
+	async function submitPost(){
+
+		const body = {
+			email: document.getElementById("emailInput").value,
+			password: document.getElementById("passwordInput").value,
+		}
+
+		placeFetch( '/login', 'POST', body);
+
+	}
+
+</script>
+
+<style type="text/css">
+
+	.homeBG{
+		display:flex;flex-wrap: wrap;justify-content: space-around;align-items: center;overflow-y: visible;background: var(--color1);height:max-content;min-height:30vh;width;80%;padding: 0 10%;
+	}
+
+	.homeText{
+		height:max-content;width:max-content; max-width:70%; color: white; margin: 5vh 0;
+	}
+
+	.homeText > div > a{
+		margin-left: 0.5em;
+	}
+
+	.homeLogin{
+		height: max-content;min-height:30vh;background: white;margin: -5vh 0;padding:5vh;border: 0.1em solid var(--color1);display:flex;flex-direction:column;justify-content: space-between;
+	}
+	
+	@media screen and (max-width: 120vh) { /* All contents apply on mobile */
+
+		.homeText > * {
+			flex-direction: column;
+		}
+
+		.homeText > div > a{
+			margin:1em 0;
+		}
+
+		.homeLogin{
+			margin:0;
+		}
+
+	}
+
+</style>
+
 <body>
 	<script>0</script> <!-- Firefox Bug Fix -->
 
 	<header>
 		<a href="/" style="background-image: url('/img/logo.png');height:2em;width:4.57em;background-size: cover;"></a>
-		<a class="button" href="/login">Log In</a>
+		<div></div>
 	</header>
 
-	<main style="display: flex; flex-direction: column; justify-content: center; align-items: center">
-		<div style="width:100%; height: max-content; min-height: 30%; background: var(--color1); color: white; display: flex; font-size: calc( var(--fontSize) * 1.2 ); flex-direction: column; justify-content: space-evenly; align-items: center">
-			<div style="font-size: calc( var(--fontSize) * 1.5 );">Keep track of tasks. It's that simple.<br></div>
-			<div style="margin:1em">Manage individual and team tasks in one central hub that does not rely on anything but an internet connection.</div>
-			<div style="margin:1em; display: flex">This application is completely Free and Open-Source. <a href="https://github.com/mbmcauliffe/tasks-application" target="_blank" style="text-decoration: underline;padding-left: 0.5em">View the Source Code</a></div>
-			<div style="display: flex; align-items: center;">
-				<a class="button type2 dark" href="/create">Create an Account</a>
-			</div>
-		</div>
+	<main style="justify-content: center;overflow-y: auto;">
 		
+		<div class="homeBG">
+
+			<div class="homeText">
+				<div style="font-size: calc( var(--fontSize) * 1.5 );">Keep track of tasks. It's that simple.<br></div>
+				<div style="margin-top: 1em">Manage individual and team tasks in one central hub that does not rely on anything but an internet connection.</div>
+				<div style="margin-top:1em;display: flex; align-items:flex-start;">This application is completely Free and Open-Source.
+					<a href="https://github.com/mbmcauliffe/tasks-application" target="_blank" style="text-decoration: underline;">View the Source Code</a></div>
+			</div>
+
+			<div class="homeLogin" >
+
+				<div class='promptHeading'>Log in</div>
+
+				<div class='inputBlock' style="width: 90%;margin:auto" onkeydown="return enterHandling(event.key);">
+					<div>Email:</div>
+					<input type="email" id='emailInput' autofocus>
+				</div>
+
+				<div class='inputBlock' style="width: 90%;margin:auto" onkeydown="return enterHandling(event.key, submitPost);">
+					<div>Password:</div>
+					<input type="password" id='passwordInput'>
+				</div>
+
+				<div style='display:flex;padding-top:1em;justify-content:center;align-items: center;'>
+					<div class='button' onclick="submitPost();">Login</div>
+					<a class='button type2' href="/create" style="margin:0">Create Account</a>
+				</div>
+
+			</div>
+			
+		</div>
+
+		</div>
+
 	</main>
 
 	<footer>Copyright &copy; 2022, Michael B McAuliffe</footer>
 
 </body>
+
+<div id='errorBlock'>
+	<div></div>
+	<div class='errorText'>
+		<div id="errorTitle" class='errorTitle'></div>
+		<div id="errorMessage" class='errorMessage'></div>
+	</div>
+	<div class='deleteSymbol' onclick='dismissError();' style='height:1em; width:1em'></div>
+</div>
 
 </html>

@@ -31,7 +31,7 @@
 			password: await document.getElementById("passwordInput").value,
 		}
 
-		placeFetch( '/create', 'POST', payload, ()=>{ window.location.replace("/login"); } );
+		placeFetch( '/create', 'POST', payload, ()=>{ window.location.replace("/"); } );
 
 	}
 
@@ -89,7 +89,7 @@
 		<div style='display:flex;padding-top:1em'>
 
 			<div class='button' onclick="submitPost();">Submit</div>
-			<a class='button type2' href="/login">Return to Login</a>
+			<a class='button type2' href="/">Return to Login</a>
 			
 		</div>
 

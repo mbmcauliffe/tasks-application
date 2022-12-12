@@ -114,7 +114,7 @@ router.post('/', async (req, res, next) => {
 	await User.updateOne({ _id: user._id }, { $set: { people: user.people }});
 	await User.updateOne({ _id: invitedUser._id }, { $set: { people: invitedUser.people }});
 
-	const htmlBody = "<style type='text/css'>*{ font-size: 20px; }</style>" + user.firstName + " " + user.lastName + " at " + user.email + " has invited you to collaborate on tasks with Tasks. You can accept their invitation at <a clicktracking='off' href=https://" + websiteUrl + "/people target='_blank'>https://" + websiteUrl + "/people</a>";
+	const htmlBody = "<style type='text/css'>*{ font-size: 20px; }</style>" + user.firstName + " " + user.lastName + " at " + user.email + " has invited you to collaborate on tasks. You can allow them to share tasks with you at <a clicktracking='off' href=https://" + websiteUrl + "/people target='_blank'>https://" + websiteUrl + "/people</a>";
 	sendMail( invitedUser.email, user.firstName + " " + user.lastName + " has invited you to share tasks.", htmlBody );
 
 	return res.status(200).send()
