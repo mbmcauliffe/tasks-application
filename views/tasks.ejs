@@ -16,7 +16,12 @@
 		width: 95%;
 	}
 	.overdue{
-		background:red;
+		background:hsl(0, 60%, 50%);
+		color:white;
+		font-weight:bold
+	}
+	.completeStatus{
+		background:hsl(120, 60%, 40%);
 		color:white;
 		font-weight:bold
 	}
@@ -55,6 +60,7 @@
 							<th>Description</th>
 							<th>Status</th>
 							<th>Time Remaining</th>
+							<th>End Date</th>
 						</tr>
 					<% } %>
 				</thead>
@@ -66,8 +72,13 @@
 						<tr class="hasLink<% if ( locals.tasks[i].status == "Complete" ) { %> complete" style="display:none<% } %>" onclick="editTask('<%= locals.tasks[i].id %>');">
 							<td id="<%= 'title' + locals.tasks[i].id %>"><%= locals.tasks[i].title %></td>
 							<td id="<%= 'description' + locals.tasks[i].id %>"><%= locals.tasks[i].description %></td>
-							<td id="<%= 'status' + locals.tasks[i].id %>" <% if ( locals.tasks[i].status == "Overdue"){ %>class="overdue"<% } %> ><%= locals.tasks[i].status %></td>
+							<td id="<%= 'status' + locals.tasks[i].id %>" <% if ( locals.tasks[i].status == "Overdue"){ %>class="overdue"<% } %><% if ( locals.tasks[i].status == "Complete"){ %>class="completeStatus"<% } %> ><%= locals.tasks[i].status %></td>
 							<td id="<%= 'timeRemaining' + locals.tasks[i].id %>"><%= locals.tasks[i].timeRemaining %></td>
+							<%
+								var endDateHR = new Date( locals.tasks[i].endDate );
+								endDateHR = endDateHR.getMonth()+1 + "/" + endDateHR.getDate() + "/" + endDateHR.getFullYear();
+							%>
+							<td><%= endDateHR %></td>
 						</tr>
 
 						<input type="hidden" id="taskData<%= locals.tasks[i].id %>" value='<%= JSON.stringify(locals.tasks[i]) %>'>
