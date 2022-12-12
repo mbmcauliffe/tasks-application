@@ -37,7 +37,7 @@
 					<tr>
 						<th>First Name</th>
 						<th>Last Name</th>
-						<th>Email Address</th>
+						<th class="desktopOnly" >Email Address</th>
 						<th>Can Share With Me</th>
 						<th>Remove</th>
 					</tr>
@@ -50,7 +50,7 @@
 						<tr>
 							<td><%= locals.people[i].firstName %></td>
 							<td><%= locals.people[i].lastName %></td>
-							<td><%= locals.people[i].email %></td>
+							<td class="desktopOnly" ><%= locals.people[i].email %></td>
 							<td><input type="checkbox" name="canShare" id="canShare" <% if ( locals.people[i].canShare === true ) { %>checked<% } %>><label class="toggle" for="canShare" onclick="placeFetch('/people', 'PATCH', { id: '<%= locals.people[i].id %>', value: !document.getElementById('canShare').checked }, ()=>{} )"><div class="toggleCircle"></div></label></td>
 							<td><div class="button red" onclick="placeFetch( '/people', 'DELETE', { id: '<%= locals.people[i].id %>' }, ()=>{window.location.replace('/people')} );">Remove</div></td>
 						</tr>
