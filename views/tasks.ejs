@@ -59,8 +59,8 @@
 							<th>Title</th>
 							<th>Description</th>
 							<th>Status</th>
-							<th class="desktopOnly">Time Remaining</th>
-							<th class="desktopOnly">End Date</th>
+							<th>Time Remaining</th>
+							<th>End Date</th>
 						</tr>
 					<% } %>
 				</thead>
@@ -73,12 +73,12 @@
 							<td id="<%= 'title' + locals.tasks[i].id %>"><%= locals.tasks[i].title %></td>
 							<td id="<%= 'description' + locals.tasks[i].id %>"><%= locals.tasks[i].description %></td>
 							<td id="<%= 'status' + locals.tasks[i].id %>" <% if ( locals.tasks[i].status == "Overdue"){ %>class="overdue"<% } %><% if ( locals.tasks[i].status == "Complete"){ %>class="completeStatus"<% } %> ><%= locals.tasks[i].status %></td>
-							<td id="<%= 'timeRemaining' + locals.tasks[i].id %>"class="desktopOnly"><%= locals.tasks[i].timeRemaining %></td>
+							<td id="<%= 'timeRemaining' + locals.tasks[i].id %>"><%= locals.tasks[i].timeRemaining %></td>
 							<%
 								var endDateHR = new Date( locals.tasks[i].endDate );
 								endDateHR = endDateHR.getMonth()+1 + "/" + endDateHR.getDate() + "/" + endDateHR.getFullYear();
 							%>
-							<td class="desktopOnly"><%= endDateHR %></td>
+							<td><%= endDateHR %></td>
 						</tr>
 
 						<input type="hidden" id="taskData<%= locals.tasks[i].id %>" value='<%= JSON.stringify(locals.tasks[i]) %>'>
@@ -178,7 +178,7 @@
 				<div class='button type2' onClick="closeTaskEdit()">Cancel</div>
 			</div>
 
-			<div class='button red' style="display: none" id="deleteTaskButton" onclick="placeFetch( '/', 'DELETE', { id: task.id } )">Delete</div>
+			<div class='button red' style="display: none" id="deleteTaskButton" onclick="placeFetch( '/', 'DELETE', { id: task.id } )">Delete Task</div>
 			
 		</div>
 
