@@ -147,7 +147,7 @@ async function authorizeToken( req, res, next ){
 		}
 
 	if ( existingUser.isVerified !== true && req.url !== "/verify" && req.url !== "/logout" ){
-		return res.status( 403 ).render( "verifyEmail.ejs" );
+		return res.status( 403 ).render( "needVerification.ejs" );
 	}
 
 		// Attach the user's information to be used later in the application
@@ -412,37 +412,6 @@ app.get('/', async (req, res, next) => {
 
 });
 
-app.get("/verify/:identifier", async ( req, res )=>{
-	// Check the url-based single-use identifier, render a different page depending on the success of the check
-
-	const date = new Date();
-	const timeNow = date.getTime();
-
-	for ( i=0; i<verifyTokens.length; i++ ) {
-
-		if ( verifyTokens[i].created + 259200000 < timeNow ) {
-			verifyTokens.splice( i, 1 );
-			continue
-		}
-
-		if ( req.params.identifier === verifyTokens[i].token ) {
-
-			const user = await User.findOne({ _id: verifyTokens[i].user });
-			user.isVerified = true;
-			user.save();
-
-			verifyTokens.splice( i, 1 );
-
-			return res.render( "emailVerified.ejs" );
-			
-		}
-
-	}
-
-	return res.render( "verifyEmail.ejs" );
-
-});
-
 app.get("/reset/:identifier", ( req, res )=>{
 
 	return res.render("resetPassword.ejs");
@@ -498,27 +467,49 @@ app.post("/reset", async ( req, res )=>{
 
 });
 
-app.use(authorizeToken);
+app.get("/verify/:identifier", ( req, res )=>{
 
-var verifyTokens = [];
+	return res.render("verifyEmail.ejs");
+
+});
+
+app.post("/verify/:identifier", async ( req, res )=>{
+
+	const user = await User.findOne({ email: req.body.email });
+
+	if( user == null ){
+		return res.sendStatus(200);
+	}
+
+	if ( req.params.identifier !== user.identifier ) {
+		return res.sendStatus(200);
+	}
+
+	user.isVerified = true;
+	user.identifier = null;
+
+	user.save();
+
+	return res.render("emailVerified.ejs");
+
+});
+
+app.use(authorizeToken);
 
 app.post("/verify", async ( req, res )=>{
 	// Send the user an email redirecting them to a GET route with their unique identifier
 
+	const user = await User.findOne({ email: req.headers.user.email });
+
 	const identifier = crypto.randomBytes(16).toString("HEX");
 
-	const date = new Date();
-
-	verifyTokens.push({
-		token: identifier,
-		user: req.headers.user.id,
-		created: date.getTime()
-	});
+	user.identifier = identifier;
+	user.save();
 
 	identifierURL = "https://" + websiteUrl + "/verify/" + identifier;
 	const htmlBody = "<style type='text/css'>*{ font-size: 20px; } .button{ font-weight:bold; text-decoration: none;	display: block;background: hsl(205, 100%, 16%);width: max-content;height: 1em;padding: 0.2em 0.5em 0.2em 0.5em;margin: 0.25em 1em 0.25em 0em;color: white;line-height: 1em;cursor: pointer;border:0.1em solid white } .button:hover{ color: hsl(205, 100%, 16%); background-color: white; border-color: hsl(205, 100%, 16%); }</style>Howdy,<br><br>Please use the following link to verify your email address with Tasks:<br><br><a clicktracking='off' href=" + identifierURL + " target='_blank' class='button' >Verify Email</a><br>Thank you,<br>Tasks.MBMcAuliffe.net";
 
-	sendMail( req.headers.user.email, "Verify your email with " + websiteUrl, htmlBody );
+	sendMail( req.headers.user.email, "Email Verification: " + websiteUrl, htmlBody );
 
 	return res.sendStatus(200)
 

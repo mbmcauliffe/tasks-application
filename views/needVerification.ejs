@@ -3,30 +3,18 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Verify | Tasks</title>
+	<title>Login | Tasks</title>
 	<link rel="stylesheet" href="https://global.mbmcauliffe.net/global.css" crossorigin="anonymous">
 	<script type="text/javascript" src='https://global.mbmcauliffe.net/global.js'  crossorigin="anonymous" defer></script>
 	<link rel="icon" type="image/x-icon" href="/img/favicon.png">
 </head>
-
-<script type="text/javascript">
-	
-	function submit(){
-
-		placeFetch(window.location.href, 'POST', {
-			email: document.getElementById('emailInput').value
-		} );
-
-	}
-
-</script>
 
 <body>
 	<script>0</script> <!-- Firefox Bug Fix -->
 
 	<header>
 		<a href="/" style="background-image: url('/img/logo.png');height:2em;width:4.57em;background-size: cover;"></a>
-		<div></div>
+		<div class="button type2" onclick="logout()">Log Out</div>
 	</header>
 
 	<main></main>
@@ -35,20 +23,18 @@
 
 	<div id="promptBox" style='display: block'>
 
-		<div class='promptHeading'>Verify your Email Address</div>
+		<div class='promptHeading'>Verify Your Email Address</div>
 
 		<div class="promptScrollBox">
 
-			<div class='inputBlock' onkeydown="return enterHandling(event.key, submit);">
-				<div>Email Address:</div>
-				<input type="email" id='emailInput' autofocus>
-			</div>
+			In order to use this tasks application, we need to verify that your email address is correct. Please click on the button below to request a verification email from noreply@noreply.mbmcauliffe.net
 			
 		</div>
 
 		<div style='display:flex;align-items:center;padding-top:1em'>
 
-			<div class='button' onclick="submit()">Verify Email</div>
+			<div class='button' onclick="placeFetch('/verify', 'POST', null, ()=>{ document.getElementById('sentMessage').style.setProperty('display', 'block') } );">Send Verification Email</div>
+			<div id="sentMessage" style="display: none;color:green; border-top: 0.1em solid green;border-bottom: 0.1em solid green;height: 1em;line-height:1em;padding: 0.1em 0.5em 0.1em 0.5em;">Email Sent!</div>
 			
 		</div>
 
