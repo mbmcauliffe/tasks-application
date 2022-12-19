@@ -41,7 +41,6 @@ function addPerson ( personId=null ) {
 	if ( personId == "" || task.people.indexOf( personId ) >= 0) {
 		return
 	}
-	console.log(personId)
 
 	// Add the personId to the task object
 	task.people.push(personId);

@@ -94,13 +94,13 @@
 
 	<footer>Copyright &copy; 2022, Michael B McAuliffe</footer>
 
-	<div id="promptBox">
+	<div id="promptBox" style="flex-direction: row; flex-wrap: wrap; width: 50em">
 
 		<div class='promptHeading' id="promptHeading">New Task</div>
 
 		<div class="promptScrollBox">
 
-			<div>
+			<div style="width:100%" >
 				<div class='inputBlock' onkeydown="return enterHandling(event.key);">
 					<div>Title: *</div>
 					<input type="text" id='titleInput'>
@@ -136,39 +136,45 @@
 					</select>
 				</div>
 
-				<div class='inputBlock' id="peopleBlock" onkeydown="return addPeople(event.key);" <% if ( locals.people.length == 0 ) { %>style="display:none"<% } %>>
-					<div>People:</div>
-
-					<div class="flexRow">
-						<select id="personSelect">
-
-							<option value="" selected>- Select -</option>
-
-							<% for ( i=0; i<locals.people.length; i++ ) { if ( locals.people[i].canBeSharedWith === true ) { // Add each person who is available to be added to the task to the people select %>
-								<option value="<%= locals.people[i].id %>"><%= locals.people[i].firstName + " " + locals.people[i].lastName + " ( " + locals.people[i].email + " )"%></option>
-							<% } } %>
-
-						</select>
-						<div class="button" style="margin:0; margin-left: 0.5em" onclick="addPerson()">Add</div>
-					</div>
-
-					<div class="flexRow" style="justify-content: flex-start" id="person<%= locals.user.id %>">
-						<div class="button red" onclick="removePerson( '<%= locals.user.id %>' )">Remove</div>
-						<div><%= locals.user.firstName + " " + locals.user.lastName %></div>
-					</div>
-
-					<% for ( i=0; i<locals.people.length; i++ ) { // For each person on the task already or available to be added to the task, add an indicator that can be used to show them as being on the task %>
-
-						<div class="flexRow" style="justify-content: flex-start; display:none" id="person<%= locals.people[i].id %>">
-							<div class="button red" onclick="removePerson( '<%= locals.people[i].id %>' )">Remove</div>
-							<div><%= locals.people[i].firstName + " " + locals.people[i].lastName + " ( " + locals.people[i].email + " )"%></div>
-						</div>
-
-					<% } %>
-
-				</div>
 			</div>
 			
+		</div>
+
+		<div class="promptScrollBox" >
+			
+			<div class='inputBlock' id="peopleBlock" onkeydown="return addPeople(event.key);" <% if ( locals.people.length == 0 ) { %>style="display:none"<% } %>>
+				<div>People:</div>
+
+				<div class="flexRow">
+					<select id="personSelect">
+
+						<option value="" selected>- Select -</option>
+
+						<option value="<%= locals.user.id %>" ><%= locals.user.firstName + " " + locals.user.lastName %></option>
+						<% for ( i=0; i<locals.people.length; i++ ) { if ( locals.people[i].canBeSharedWith === true ) { // Add each person who is available to be added to the task to the people select %>
+							<option value="<%= locals.people[i].id %>"><%= locals.people[i].firstName + " " + locals.people[i].lastName + " ( " + locals.people[i].email + " )"%></option>
+						<% } } %>
+
+					</select>
+					<div class="button" style="margin:0; margin-left: 0.5em" onclick="addPerson()">Add</div>
+				</div>
+
+				<div class="flexRow" style="justify-content: flex-start" id="person<%= locals.user.id %>">
+					<div class="button red" onclick="removePerson( '<%= locals.user.id %>' )">Remove</div>
+					<div><%= locals.user.firstName + " " + locals.user.lastName %></div>
+				</div>
+
+				<% for ( i=0; i<locals.people.length; i++ ) { // For each person on the task already or available to be added to the task, add an indicator that can be used to show them as being on the task %>
+
+					<div class="flexRow" style="justify-content: flex-start; display:none" id="person<%= locals.people[i].id %>">
+						<div class="button red" onclick="removePerson( '<%= locals.people[i].id %>' )">Remove</div>
+						<div><%= locals.people[i].firstName + " " + locals.people[i].lastName + " ( " + locals.people[i].email + " )"%></div>
+					</div>
+
+				<% } %>
+
+			</div>
+
 		</div>
 
 		<div style='display:flex;padding-top:1em;flex-shrink:0; justify-content: space-between; width:100%'>
