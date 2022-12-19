@@ -94,7 +94,7 @@
 
 	<footer>Copyright &copy; 2022, Michael B McAuliffe</footer>
 
-	<div id="promptBox" style="flex-direction: row; flex-wrap: wrap; width: 50em">
+	<div id="promptBox" style="flex-direction: row; flex-wrap: wrap; <% if ( locals.people.length != 0 ) { %>width: 50em<% } %>">
 
 		<div class='promptHeading' id="promptHeading">New Task</div>
 
