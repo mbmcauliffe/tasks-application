@@ -30,6 +30,10 @@
 		flex-shrink: 0;
 	}
 
+	main{
+		flex-shrink: 1;
+	}
+
 	.homeBG{
 		display:flex;
 		flex-wrap: wrap;
@@ -66,6 +70,15 @@
 		display:flex;
 		flex-direction:column;
 		justify-content: space-between;
+	}
+
+	.forgot{
+		color:gray;
+		font-size: calc(var(--fontSize) * 0.9);
+	}
+
+	.forgot:hover{
+		color: lightblue;
 	}
 	
 	@media screen and (max-width: 120vh) { /* All contents apply on mobile */
@@ -120,9 +133,15 @@
 					<input type="password" id='passwordInput'>
 				</div>
 
-				<div style='display:flex;padding-top:1em;justify-content:center;align-items: center;'>
-					<div class='button' onclick="submitPost();">Login</div>
-					<a class='button type2' href="/create" style="margin:0">Create Account</a>
+				<div style="display:flex;padding-top:1em;justify-content:center;align-items: flex-start;flex-direction: column;">
+					
+					<div style='display:flex;align-items: center;width:max-content'>
+						<div class='button' onclick="submitPost();">Login</div>
+						<a class='button type2' href="/create" style="margin:0">Create Account</a>
+					</div>
+
+					<a href="/reset" class="forgot">Forgot Password?</a>
+
 				</div>
 
 			</div>

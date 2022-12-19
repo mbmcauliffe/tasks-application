@@ -418,20 +418,20 @@ app.get("/verify/:identifier", async ( req, res )=>{
 	const date = new Date();
 	const timeNow = date.getTime();
 
-	for ( i=0; i<emailTokens.length; i++ ) {
+	for ( i=0; i<verifyTokens.length; i++ ) {
 
-		if ( emailTokens[i].created + 259200000 < timeNow ) {
-			emailTokens.splice( i, 1 );
+		if ( verifyTokens[i].created + 259200000 < timeNow ) {
+			verifyTokens.splice( i, 1 );
 			continue
 		}
 
-		if ( req.params.identifier === emailTokens[i].token ) {
+		if ( req.params.identifier === verifyTokens[i].token ) {
 
-			const user = await User.findOne({ _id: emailTokens[i].user });
+			const user = await User.findOne({ _id: verifyTokens[i].user });
 			user.isVerified = true;
 			user.save();
 
-			emailTokens.splice( i, 1 );
+			verifyTokens.splice( i, 1 );
 
 			return res.render( "emailVerified.ejs" );
 			
@@ -443,9 +443,64 @@ app.get("/verify/:identifier", async ( req, res )=>{
 
 });
 
+app.get("/reset/:identifier", ( req, res )=>{
+
+	return res.render("resetPassword.ejs");
+
+});
+
+app.post("/reset/:identifier", async ( req, res )=>{
+
+	const user = await User.findOne({ email: req.body.email });
+
+	if( user == null ){
+		return res.sendStatus(200);
+	}
+
+	if ( req.params.identifier !== user.identifier ) {
+		return res.sendStatus(200);
+	}
+
+	user.password = await bcrypt.hash(req.body.password, 8);
+	user.identifier = null;
+
+	user.save();
+
+	return res.sendStatus(200);
+
+});
+
+app.get("/reset", ( req, res )=>{
+
+	return res.render("forgotPassword.ejs");
+
+});
+
+app.post("/reset", async ( req, res )=>{
+	// Send the user an email redirecting them to a GET route with their unique identifier
+
+	const user = await User.findOne({ email: req.body.email });
+	if( user == null ){
+		return res.sendStatus(200);
+	}
+
+	const identifier = crypto.randomBytes(16).toString("HEX");
+
+	user.identifier = identifier;
+	user.save();
+
+	identifierURL = "https://" + websiteUrl + "/reset/" + identifier;
+	const htmlBody = "<style type='text/css'>*{ font-size: 20px; } .button{ font-weight:bold; text-decoration: none;	display: block;background: hsl(205, 100%, 16%);width: max-content;height: 1em;padding: 0.2em 0.5em 0.2em 0.5em;margin: 0.25em 1em 0.25em 0em;color: white;line-height: 1em;cursor: pointer;border:0.1em solid white } .button:hover{ color: hsl(205, 100%, 16%); background-color: white; border-color: hsl(205, 100%, 16%); }</style>Howdy,<br><br>Please use the following link to reset your password with Tasks:<br><br><a clicktracking='off' href=" + identifierURL + " target='_blank' class='button' >Reset Password</a><br>Thank you,<br>Tasks.MBMcAuliffe.net";
+
+	sendMail( req.body.email, "Password Reset: " + websiteUrl, htmlBody );
+
+	return res.sendStatus(200)
+
+});
+
 app.use(authorizeToken);
 
-var emailTokens = [];
+var verifyTokens = [];
 
 app.post("/verify", async ( req, res )=>{
 	// Send the user an email redirecting them to a GET route with their unique identifier
@@ -454,7 +509,7 @@ app.post("/verify", async ( req, res )=>{
 
 	const date = new Date();
 
-	emailTokens.push({
+	verifyTokens.push({
 		token: identifier,
 		user: req.headers.user.id,
 		created: date.getTime()

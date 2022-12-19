@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
 		type: {},
 		required: true,
 		default: {}
+	},
+	identifier: {
+		type: String,
+		required: false
 	}
 });
 
