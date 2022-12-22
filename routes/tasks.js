@@ -97,8 +97,6 @@ router.get("/csv", async ( req, res )=>{
 
 	exportData = exportData.join( "\n" );
 
-	console.log( exportData );
-
 	return res.attachment('tasks.csv').send( exportData );
 
 });
