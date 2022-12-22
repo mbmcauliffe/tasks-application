@@ -41,8 +41,9 @@
 
 	<main>
 		<% if ( locals.tasks.length != 0 ) { // Show the show completed button if one or more tasks exist that list the user as a person %>
-			<div style="min-width: 60vw; max-width: 90vw; margin:0 auto; display: flex;">
+			<div style="min-width: 60vw; max-width: 90vw; margin:0 auto; display: flex;justify-content: space-between;">
 				<div class="button type2" id="completionButton" onclick="showCompleted()">Show Completed</div>
+				<a class="button type2" href="/csv">Export</a>
 			</div>
 		<% } %>
 		

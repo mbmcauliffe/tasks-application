@@ -58,6 +58,51 @@ autoremoveTasks();
 
 //////////////////////////////// Express Routes ////////////////////////////////
 
+router.get("/csv", async ( req, res )=>{
+
+	const user = await User.findOne({ email: req.headers.user.email }).lean();
+	const tasks = await Task.find({ people: { $in: user._id } });
+
+	var exportData = ["Title,Description,Status,Created By,Start Date,End Date"];
+	const timeNow = new Date();
+	
+	for ( i=0; i<tasks.length; i++ ) {
+
+		const startDate = new Date( tasks[i].startDate );
+		const endDate = new Date( tasks[i].endDate );
+
+		const milisecondsElapsed = ( timeNow.getTime() - startDate.getTime() );
+		const milisecondsRemaining = await ( endDate.getTime() - timeNow.getTime() );
+
+		if ( tasks[i].status != "Complete" ) {
+			// Determine special status markers based on time criteria
+
+			taskStatus = "Open";
+
+			if ( milisecondsElapsed < 0 ) {
+				taskStatus = "Future";
+			}
+
+			if ( milisecondsRemaining < 0 ) {
+				taskStatus = "Overdue";
+			}
+
+		} else {
+			taskStatus = "Complete";
+		}
+
+		exportData.push( tasks[i].title + "," + tasks[i].description + "," + taskStatus + "," + tasks[i].createdBy + "," + tasks[i].startDate + "," + tasks[i].endDate );
+
+	}
+
+	exportData = exportData.join( "\n" );
+
+	console.log( exportData );
+
+	return res.attachment('tasks.csv').send( exportData );
+
+});
+
 router.get('/', async (req, res, next) => {
 	// Get all of the information relevant to every task and render the tasks page for the user
 
@@ -213,7 +258,7 @@ router.post('/', async (req, res, next) => {
 	task.status = req.body.status;
 
 	if ( task.status == null || task.status == "" ) {
-		task.status = "Created";
+		task.status = "Incomplete";
 	}
 
 	if ( task.description == null || req.body.description == ""){
