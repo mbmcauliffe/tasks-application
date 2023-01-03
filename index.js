@@ -45,10 +45,10 @@ var tokenSecret;
 var cookieOptions;
 if ( serverMode === "dev" ) {
 	tokenSecret = "dev";
-	cookieOptions = { httpOnly:true, sameSite: "Strict", secure:true, maxAge:604800000 /* Miliseconds */ }
+	cookieOptions = { httpOnly:true, sameSite: "Strict", secure:false, maxAge:604800000 /* Miliseconds */ }
 } else {
 	tokenSecret = crypto.randomBytes(128).toString("HEX");
-	cookieOptions = { httpOnly:true, sameSite: "Strict", secure:false, maxAge:604800000 /* Miliseconds */ }
+	cookieOptions = { httpOnly:true, sameSite: "Strict", secure:true, maxAge:604800000 /* Miliseconds */ }
 }
 
 
